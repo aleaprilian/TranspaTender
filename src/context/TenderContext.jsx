@@ -33,7 +33,7 @@ export function TenderProvider({ children }) {
   const [web3Balance, setWeb3Balance] = useState('0');
   const [contractOwner, setContractOwner] = useState(null);
   const [deployedContractAddress, setDeployedContractAddress] = useState(() => {
-    return localStorage.getItem('transpatender_contract_address') || '';
+    return localStorage.getItem('transpatender_contract_address') || '0xEada85d712CBfb00BB3fE939D6A4fF758772e380';
   });
   const [web3Error, setWeb3Error] = useState(null);
   const [isWeb3Loading, setIsWeb3Loading] = useState(false);
