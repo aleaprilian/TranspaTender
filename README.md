@@ -44,11 +44,12 @@ Smart contract TranspaTender telah resmi dideploy dan diverifikasi (*Source Code
 | :--- | :--- |
 | **Network** | Base Sepolia Testnet (Ethereum Layer-2) |
 | **Chain ID** | `84532` (Hex: `0x14a34`) |
-| **Contract Address** | [`0xEada85d712CBfb00BB3fE939D6A4fF758772e380`](https://sepolia.basescan.org/address/0xEada85d712CBfb00BB3fE939D6A4fF758772e380) |
+| **Contract Address (v2 - Nama PT On-Chain)** | [`0x632d1F94F2D0f35128904bf062a568d2189586bb`](https://sepolia.basescan.org/address/0x632d1F94F2D0f35128904bf062a568d2189586bb) |
+| **Contract Address (v1 - Base Protocol)** | [`0xEada85d712CBfb00BB3fE939D6A4fF758772e380`](https://sepolia.basescan.org/address/0xEada85d712CBfb00BB3fE939D6A4fF758772e380#code) |
 | **Compiler Version** | `Solidity v0.8.20+commit.a1b79de6` |
 | **Optimization** | Yes (200 Runs) |
 | **License** | MIT License |
-| **Explorer Link** | [Buka Kontrak di Basescan ↗](https://sepolia.basescan.org/address/0xEada85d712CBfb00BB3fE939D6A4fF758772e380#code) |
+| **Explorer Link** | [Buka Kontrak v2 di Basescan ↗](https://sepolia.basescan.org/address/0x632d1F94F2D0f35128904bf062a568d2189586bb) |
 
 ---
 
