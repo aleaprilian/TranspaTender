@@ -1,26 +1,28 @@
 # 🏛️ TranspaTender ID — Decentralized E-Procurement System
 
-[![Solidity](https://img.shields.io/badge/Solidity-0.8.20-363636?style=for-the-badge&logo=solidity)](https://soliditylang.org/)
+[![Live Demo](https://img.shields.io/badge/Demo-GitHub_Pages_Live-22c55e?style=for-the-badge&logo=github)](https://aleaprilian.github.io/TranspaTender/)
 [![Network](https://img.shields.io/badge/Network-Base_Sepolia_Testnet-0052FF?style=for-the-badge&logo=coinbase)](https://sepolia.basescan.org/)
-[![Contract Verified](https://img.shields.io/badge/Basescan-Contract_Verified_✔-00C087?style=for-the-badge)](https://sepolia.basescan.org/address/0xEada85d712CBfb00BB3fE939D6A4fF758772e380#code)
-[![IPFS](https://img.shields.io/badge/Storage-IPFS_%2F_Pinata-65C2CB?style=for-the-badge&logo=ipfs)](https://pinata.cloud/)
+[![Contract Active](https://img.shields.io/badge/Contract-0x632d...86bb-00C087?style=for-the-badge&logo=solidity)](https://sepolia.basescan.org/address/0x632d1F94F2D0f35128904bf062a568d2189586bb)
+[![Storage](https://img.shields.io/badge/Storage-IPFS_%2F_Pinata-65C2CB?style=for-the-badge&logo=ipfs)](https://pinata.cloud/)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
+> 🌐 **Live Website Portal:** [https://aleaprilian.github.io/TranspaTender/](https://aleaprilian.github.io/TranspaTender/)  
 > **TranspaTender ID** adalah sistem pengadaan barang dan jasa (*e-procurement*) pemerintah berbasis *blockchain* L2 (**Base Sepolia Testnet**) yang memadukan protokol kriptografi **Commit-Reveal (Sealed-Bid)** dan penyimpanan terdesentralisasi **IPFS**. Sistem ini dirancang untuk membasmi praktik korupsi, kolusi, dan nepotisme (KKN) seperti pembocoran harga lelang oleh orang dalam (*insider trading*), manipulasi batas waktu (*backdating*), serta pengubahan pemenang tender di balik pintu.
 
 ---
 
 ## 📑 Daftar Isi
 1. [Fitur Utama & Keunggulan](#-fitur-utama--keunggulan)
-2. [Alamat Smart Contract Terverifikasi](#-alamat-smart-contract-terverifikasi)
-3. [Panduan Lengkap Audit Publik via BaseScan (Langkah Demi Langkah)](#-panduan-lengkap-audit-publik-via-basescan-langkah-demi-langkah)
-4. [Mengapa Harga Terlihat di Fase Reveal? (Zero Insider Trading)](#-mengapa-harga-terlihat-di-fase-reveal-zero-insider-trading)
-5. [Arsitektur & Alur Kerja Sistem (Workflow)](#-arsitektur--alur-kerja-sistem-workflow)
-6. [Struktur Direktori Proyek](#-struktur-direktori-proyek)
-7. [Panduan Instalasi & Menjalankan Aplikasi](#-panduan-instalasi--menjalankan-aplikasi)
-8. [Panduan Menghubungkan Jaringan Base Sepolia](#-panduan-menghubungkan-jaringan-base-sepolia)
-9. [Kepatuhan Regulasi & Mata Uang Rupiah (IDR)](#-kepatuhan-regulasi--mata-uang-rupiah-idr)
-10. [Lisensi](#-lisensi)
+2. [Alamat Smart Contract Aktif](#-alamat-smart-contract-aktif)
+3. [Panduan Lengkap Audit Publik via BaseScan](#-panduan-lengkap-audit-publik-via-basescan)
+4. [Panduan Verifikasi Source Code di BaseScan](#-panduan-verifikasi-source-code-di-basescan)
+5. [Mengapa Harga Terlihat di Fase Reveal? (Zero Insider Trading)](#-mengapa-harga-terlihat-di-fase-reveal-zero-insider-trading)
+6. [Arsitektur & Alur Kerja Sistem (Workflow)](#-arsitektur--alur-kerja-sistem-workflow)
+7. [Struktur Direktori Proyek](#-struktur-direktori-proyek)
+8. [Panduan Instalasi & Menjalankan Aplikasi](#-panduan-instalasi--menjalankan-aplikasi)
+9. [Panduan Menghubungkan Jaringan Base Sepolia](#-panduan-menghubungkan-jaringan-base-sepolia)
+10. [Kepatuhan Regulasi & Mata Uang Rupiah (IDR)](#-kepatuhan-regulasi--mata-uang-rupiah-idr)
+11. [Lisensi](#-lisensi)
 
 ---
 
@@ -28,6 +30,7 @@
 
 * 🔒 **Protokol Lelang Tertutup (Commit-Reveal Sealed-Bid):** Harga penawaran vendor dienkripsi satu arah menggunakan algoritma `Keccak-256`. Bahkan Panitia Presiden, Menteri, atau Administrator Database **tidak dapat melihat harga penawaran** sebelum masa pendaftaran ditutup permanen.
 * 🛡️ **Zero Insider Trading & Anti-Sniping:** Mustahil ada vendor titipan yang mengajukan harga lebih murah Rp 1 di detik-detik terakhir karena semua komitmen harga telah terkunci mati di fase awal.
+* 🏢 **Pencatatan Identitas Perusahaan On-Chain:** Mendukung pencatatan nama legal PT/CV vendor secara langsung di blockchain, tersimpan di struct penawaran dan log event.
 * 📦 **Penyimpanan Terdesentralisasi IPFS (Pinata):** Dokumen Kerangka Acuan Kerja (KAK) pemerintah dan Proposal Teknis vendor di-*pin* ke jaringan IPFS permanen. Dokumen tidak bisa disunting, dihapus, atau ditukar secara sepihak.
 * 🏛️ **Dual Portal Presentation:** Antarmuka dipisahkan menjadi dua modul mandiri:
   * **Portal Pemerintah (LPSE / PPK):** Untuk menerbitkan paket tender, menetapkan pagu IDR, memantau lelang, dan mengesahkan pemenang.
@@ -36,48 +39,50 @@
 
 ---
 
-## 📜 Alamat Smart Contract Terverifikasi
+## 📜 Alamat Smart Contract Aktif
 
-Smart contract TranspaTender telah resmi dideploy dan diverifikasi (*Source Code Published & Verified*) dengan centang hijau di Block Explorer **Base Sepolia**:
+Smart contract TranspaTender berjalan di jaringan L2 **Base Sepolia**:
 
-| Parameter | Nilai Resmi |
-| :--- | :--- |
-| **Network** | Base Sepolia Testnet (Ethereum Layer-2) |
-| **Chain ID** | `84532` (Hex: `0x14a34`) |
-| **Contract Address (v2 - Nama PT On-Chain)** | [`0x632d1F94F2D0f35128904bf062a568d2189586bb`](https://sepolia.basescan.org/address/0x632d1F94F2D0f35128904bf062a568d2189586bb) |
-| **Contract Address (v1 - Base Protocol)** | [`0xEada85d712CBfb00BB3fE939D6A4fF758772e380`](https://sepolia.basescan.org/address/0xEada85d712CBfb00BB3fE939D6A4fF758772e380#code) |
-| **Compiler Version** | `Solidity v0.8.20+commit.a1b79de6` |
-| **Optimization** | Yes (200 Runs) |
-| **License** | MIT License |
-| **Explorer Link** | [Buka Kontrak v2 di Basescan ↗](https://sepolia.basescan.org/address/0x632d1F94F2D0f35128904bf062a568d2189586bb) |
+| Parameter | Kontrak Utama (v2 - Mendukung Nama PT On-Chain) | Kontrak v1 (Legacy Protocol) |
+| :--- | :--- | :--- |
+| **Contract Address** | [`0x632d1F94F2D0f35128904bf062a568d2189586bb`](https://sepolia.basescan.org/address/0x632d1F94F2D0f35128904bf062a568d2189586bb) | [`0xEada85d712CBfb00BB3fE939D6A4fF758772e380`](https://sepolia.basescan.org/address/0xEada85d712CBfb00BB3fE939D6A4fF758772e380#code) |
+| **Network** | Base Sepolia Testnet (OP Stack L2) | Base Sepolia Testnet |
+| **Chain ID** | `84532` (Hex: `0x14a34`) | `84532` |
+| **Compiler** | `Solidity v0.8.20+commit.a1b79de6` | `Solidity v0.8.20+commit.a1b79de6` |
+| **Optimization** | Yes (200 Runs) | Yes (200 Runs) |
+| **Fitur Unggulan** | `namaPerusahaan` & `namaPerusahaanPemenang` On-Chain | Protokol Sealed-Bid Dasar |
+| **Explorer Link** | [Buka Kontrak v2 di Basescan ↗](https://sepolia.basescan.org/address/0x632d1F94F2D0f35128904bf062a568d2189586bb) | [Buka Kontrak v1 di Basescan ↗](https://sepolia.basescan.org/address/0xEada85d712CBfb00BB3fE939D6A4fF758772e380#code) |
 
 ---
 
-## 🔍 Panduan Lengkap Audit Publik via BaseScan (Langkah Demi Langkah)
+## 🔍 Panduan Lengkap Audit Publik via BaseScan
 
 Siapapun (masyarakat, jurnalis, mahasiswa, auditor BPK, maupun penyidik KPK) dapat mengaudit jalannya pengadaan secara independen langsung melalui BaseScan tanpa perlu mendaftar atau meminta izin kepada panitia.
 
-### 1. Memeriksa Pemenang Sah & Nilai Kontrak Akhir
-1. Buka tautan: [BaseScan Contract Events ↗](https://sepolia.basescan.org/address/0xEada85d712CBfb00BB3fE939D6A4fF758772e380#events)
+### 1. Memeriksa Pemenang Sah & Nama Perusahaan Pemenang
+1. Buka tautan: [BaseScan Contract Events ↗](https://sepolia.basescan.org/address/0x632d1F94F2D0f35128904bf062a568d2189586bb#events)
 2. Cari baris event dengan nama **`PemenangDitetapkan`**.
 3. Klik ikon dropdown `>` untuk melihat detail log:
    * **`idTender`**: Nomor ID paket tender yang dimenangkan.
    * **`pemenang`**: Alamat dompet Web3 resmi vendor pemenang lelang (contoh: `0xd04a8d3E5cbA17B1a7AE53704F16C531614C8322`).
+   * **`namaPerusahaanPemenang`**: Nama legal PT / CV pemenang lelang (contoh: `"PT Maju Bersama"`).
    * **`hargaFinalIDR`**: Nilai kontrak final yang sah dalam satuan Rupiah (contoh: `900000000` = Rp 900.000.000).
 
 ---
 
-### 2. Memeriksa & Mengunduh Dokumen Proposal Teknis Milik Vendor
+### 2. Memeriksa Nama PT, Tawaran, & Dokumen Proposal Vendor
 1. Buka tab **[Contract]** $\rightarrow$ sub-tab **[Read Contract]**:  
-   👉 [https://sepolia.basescan.org/address/0xEada85d712CBfb00BB3fE939D6A4fF758772e380#readContract](https://sepolia.basescan.org/address/0xEada85d712CBfb00BB3fE939D6A4fF758772e380#readContract)
+   👉 [BaseScan Read Contract ↗](https://sepolia.basescan.org/address/0x632d1F94F2D0f35128904bf062a568d2189586bb#readContract)
 2. Cari fungsi nomor **4. `dataPenawaran`**:
-   * Masukkan `_idTender`: Angka ID Tender (contoh: `8`).
-   * Masukkan `_vendor`: Alamat wallet vendor (contoh: `0xd04a8d3E5cbA17B1a7AE53704F16C531614C8322`).
+   * Masukkan `_idTender`: Angka ID Tender (contoh: `1` atau `2`).
+   * Masukkan `_vendor`: Alamat wallet vendor penawar.
    * Klik tombol **Query**.
 3. Smart Contract akan menampilkan parameter:
-   * **`hashTerkunci`**: Bukti komitmen harga asli yang dicatat saat Fase Commit.
+   * **`namaPerusahaan`**: Nama PT / CV Vendor penawar resmi yang tercatat di blockchain.
+   * **`hashTerkunci`**: Bukti komitmen harga asli yang dicatat saat Fase Commit (`Keccak-256`).
    * **`ipfsProposalTeknis`**: Tautan atau CID IPFS dokumen proposal teknis vendor.
    * **`hargaTerbukaIDR`**: Nominal harga asli yang diungkap saat fase Reveal.
+   * **`sudahCommit`**: `true` (status pendaftaran sah terkunci).
    * **`sudahReveal`**: `true` (menandakan proposal sah dibuka).
    * **`memenuhiSyaratPagu`**: `true` (menandakan penawaran berada di bawah pagu lelang).
 4. **Cara Membuka File Proposal di Browser:**  
@@ -89,16 +94,33 @@ Siapapun (masyarakat, jurnalis, mahasiswa, auditor BPK, maupun penyidik KPK) dap
 
 ### 3. Memeriksa Dokumen Kerangka Acuan Kerja (KAK) Pemerintah
 1. Di tab **[Read Contract]** yang sama, cari fungsi nomor **3. `daftarTender`**:
-   * Masukkan `_idTender`: Angka ID Tender (contoh: `8`).
+   * Masukkan `_idTender`: Angka ID Tender (contoh: `1` atau `2`).
    * Klik **Query**.
 2. Anda akan mendapatkan data paket tender:
-   * `namaProyek`: Nama proyek pengadaan (contoh: `"Pengadaan Bangunan Rektorat"`).
+   * `namaProyek`: Nama proyek pengadaan (contoh: `"Pengadaan Jembatan"`).
    * `ipfsDokumenKAK`: CID dokumen KAK resmi yang diunggah PPK ke IPFS.
-   * `paguAnggaranIDR`: Batas maksimal anggaran negara (contoh: `10000000000` = Rp 10 Miliar).
+   * `paguAnggaranIDR`: Batas maksimal anggaran negara dalam Rupiah.
    * `batasWaktuCommit` & `batasWaktuReveal`: Waktu blok penutupan lelang.
    * `selesai`: `true` jika lelang sudah disahkan.
    * `pemenang`: Alamat vendor pemenang.
    * `penawaranTerendahIDR`: Nilai penawaran terendah yang menang.
+
+---
+
+## 🛠️ Panduan Verifikasi Source Code di BaseScan
+
+Untuk memverifikasi kode sumber kontrak baru (`0x632d1F94F2D0f35128904bf062a568d2189586bb`) agar memiliki centang hijau resmi di BaseScan:
+
+1. Buka tautan: [BaseScan Contract Verify ↗](https://sepolia.basescan.org/address/0x632d1F94F2D0f35128904bf062a568d2189586bb#code)
+2. Klik tombol **"Verify and Publish"**.
+3. Isi parameter compiler:
+   * **Compiler Type**: `Solidity (Single file)`
+   * **Compiler Version**: `v0.8.20+commit.a1b79de6`
+   * **Open Source License Type**: `MIT License (MIT)`
+4. Klik **Continue**, lalu pada kolom kode sumber, tempelkan seluruh isi file [`contracts/TranspaTender.sol`](contracts/TranspaTender.sol).
+5. Pada opsi **Optimization**: Pilih **`Yes`** (Runs: `200`).
+6. Kosongkan kolom *Constructor Arguments*, selesaikan captcha, dan klik **Verify and Publish**.
+   * Setelah diverifikasi, tab **Read Contract** dan **Write Contract** akan aktif penuh secara publik.
 
 ---
 
@@ -210,10 +232,10 @@ transpatender-id/
 ### 2. Kloning Repositori & Instalasi Dependensi
 ```bash
 # Kloning repositori
-git clone https://github.com/username/transpatender-id.git
+git clone https://github.com/aleaprilian/TranspaTender.git
 
 # Masuk ke direktori proyek
-cd transpatender-id
+cd TranspaTender
 
 # Pasang seluruh dependensi
 npm install
