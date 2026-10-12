@@ -76,15 +76,16 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
             const sudahCommit = Boolean(raw.sudahCommit !== undefined ? raw.sudahCommit : raw[3]);
             if (sudahCommit) {
               seenAddrs.add(tender.pemenang.toLowerCase());
+              const winnerCompany = raw.namaPerusahaan || tender.namaPerusahaanPemenang || tender.penawaran?.[tender.pemenang.toLowerCase()]?.vendorName;
               fetchedList.push({
                 vendorAddress: tender.pemenang,
-                vendorName: tender.namaPerusahaanPemenang || `Vendor Pemenang (${truncateAddress(tender.pemenang)})`,
-                hashTerkunci: raw.hashTerkunci || raw[0],
-                ipfsProposalTeknis: raw.ipfsProposalTeknis || raw[1] || '',
-                hargaTerbukaIDR: Number(raw.hargaTerbukaIDR !== undefined ? raw.hargaTerbukaIDR : raw[2]),
+                vendorName: winnerCompany ? (winnerCompany.includes(truncateAddress(tender.pemenang)) ? winnerCompany : `${winnerCompany} (${truncateAddress(tender.pemenang)})`) : `Vendor Pemenang (${truncateAddress(tender.pemenang)})`,
+                hashTerkunci: raw.hashTerkunci || raw[1] || raw[0],
+                ipfsProposalTeknis: raw.ipfsProposalTeknis || raw[2] || raw[1] || '',
+                hargaTerbukaIDR: Number(raw.hargaTerbukaIDR !== undefined ? raw.hargaTerbukaIDR : (raw.namaPerusahaan !== undefined ? raw[3] : raw[2])),
                 sudahCommit: true,
-                sudahReveal: Boolean(raw.sudahReveal !== undefined ? raw.sudahReveal : raw[4]),
-                memenuhiSyaratPagu: Boolean(raw.memenuhiSyaratPagu !== undefined ? raw.memenuhiSyaratPagu : raw[5])
+                sudahReveal: Boolean(raw.sudahReveal !== undefined ? raw.sudahReveal : (raw.namaPerusahaan !== undefined ? raw[5] : raw[4])),
+                memenuhiSyaratPagu: Boolean(raw.memenuhiSyaratPagu !== undefined ? raw.memenuhiSyaratPagu : (raw.namaPerusahaan !== undefined ? raw[6] : raw[5]))
               });
             }
           } catch (e) {}
@@ -99,17 +100,19 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
             if (pAddr && pAddr !== ethers.ZeroAddress && !seenAddrs.has(pAddr.toLowerCase())) {
               seenAddrs.add(pAddr.toLowerCase());
               const raw = await contract.dataPenawaran(tender.id, pAddr);
-              const sudahCommit = Boolean(raw.sudahCommit !== undefined ? raw.sudahCommit : raw[3]);
+              const sudahCommit = Boolean(raw.sudahCommit !== undefined ? raw.sudahCommit : (raw.namaPerusahaan !== undefined ? raw[4] : raw[3]));
               if (sudahCommit) {
+                const companyName = raw.namaPerusahaan || tender.penawaran?.[pAddr.toLowerCase()]?.vendorName || tender.penawaran?.[pAddr]?.vendorName;
+                const resolvedVendorName = companyName ? (companyName.includes(truncateAddress(pAddr)) ? companyName : `${companyName} (${truncateAddress(pAddr)})`) : `Vendor Rekanan (${truncateAddress(pAddr)})`;
                 fetchedList.push({
                   vendorAddress: pAddr,
-                  vendorName: `Vendor Rekanan (${truncateAddress(pAddr)})`,
-                  hashTerkunci: raw.hashTerkunci || raw[0],
-                  ipfsProposalTeknis: raw.ipfsProposalTeknis || raw[1] || '',
-                  hargaTerbukaIDR: Number(raw.hargaTerbukaIDR !== undefined ? raw.hargaTerbukaIDR : raw[2]),
+                  vendorName: resolvedVendorName,
+                  hashTerkunci: raw.hashTerkunci || raw[1] || raw[0],
+                  ipfsProposalTeknis: raw.ipfsProposalTeknis || raw[2] || raw[1] || '',
+                  hargaTerbukaIDR: Number(raw.hargaTerbukaIDR !== undefined ? raw.hargaTerbukaIDR : (raw.namaPerusahaan !== undefined ? raw[3] : raw[2])),
                   sudahCommit: true,
-                  sudahReveal: Boolean(raw.sudahReveal !== undefined ? raw.sudahReveal : raw[4]),
-                  memenuhiSyaratPagu: Boolean(raw.memenuhiSyaratPagu !== undefined ? raw.memenuhiSyaratPagu : raw[5])
+                  sudahReveal: Boolean(raw.sudahReveal !== undefined ? raw.sudahReveal : (raw.namaPerusahaan !== undefined ? raw[5] : raw[4])),
+                  memenuhiSyaratPagu: Boolean(raw.memenuhiSyaratPagu !== undefined ? raw.memenuhiSyaratPagu : (raw.namaPerusahaan !== undefined ? raw[6] : raw[5]))
                 });
               }
             }

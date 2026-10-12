@@ -983,17 +983,19 @@ export function TenderProvider({ children }) {
         const contract = await getContractInstance(true);
         let tx;
         try {
-          // Attempt 4-parameter version (with explicit vendor company name)
-          tx = await contract.kirimPenawaranTerkunci(
+          // Explicitly call the 4-parameter version with exact signature for Ethers v6
+          const fn4 = contract.getFunction("kirimPenawaranTerkunci(uint256,string,bytes32,string)");
+          tx = await fn4(
             BigInt(idTender),
             finalCompanyName,
             hashTerkunci,
             finalProposalUrl
           );
         } catch (firstErr) {
-          // Fallback to legacy 3-parameter overload
+          // Fallback to legacy 3-parameter overload only if contract does not support 4 parameters
           console.warn("Falling back to 3-parameter kirimPenawaranTerkunci:", firstErr);
-          tx = await contract["kirimPenawaranTerkunci(uint256,bytes32,string)"](
+          const fn3 = contract.getFunction("kirimPenawaranTerkunci(uint256,bytes32,string)");
+          tx = await fn3(
             BigInt(idTender),
             hashTerkunci,
             finalProposalUrl
