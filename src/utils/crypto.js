@@ -67,8 +67,9 @@ export const SIMULATED_ACCOUNTS = [
     institution: "Dinas Kesehatan Prov. DKI Jakarta",
     address: "0x71C8A5637Cd74D230536c4b245FE1275Db7F5801",
     role: "PANITIA",
+    portal: "pemerintah",
     balance: "4.82 POL",
-    badgeColor: "bg-slate-900 text-white"
+    badgeColor: "bg-brand-900 text-white"
   },
   {
     id: "vendor_a",
@@ -76,8 +77,9 @@ export const SIMULATED_ACCOUNTS = [
     institution: "Kontraktor & Supplier Medika",
     address: "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
     role: "VENDOR",
+    portal: "vendor",
     balance: "1.25 POL",
-    badgeColor: "bg-blue-600 text-white"
+    badgeColor: "bg-brand-50 text-brand-700 border border-brand-200"
   },
   {
     id: "vendor_b",
@@ -85,8 +87,9 @@ export const SIMULATED_ACCOUNTS = [
     institution: "Penyedia Teknologi & Logistik",
     address: "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
     role: "VENDOR",
+    portal: "vendor",
     balance: "2.10 POL",
-    badgeColor: "bg-emerald-600 text-white"
+    badgeColor: "bg-brand-50 text-brand-700 border border-brand-200"
   },
   {
     id: "auditor",
@@ -94,8 +97,9 @@ export const SIMULATED_ACCOUNTS = [
     institution: "Lembaga Pengawas Keuangan Negara",
     address: "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
     role: "AUDITOR",
+    portal: "pemerintah",
     balance: "0.50 POL",
-    badgeColor: "bg-purple-600 text-white"
+    badgeColor: "bg-slate-100 text-slate-700 border border-slate-200"
   }
 ];
 

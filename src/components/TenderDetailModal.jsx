@@ -1,39 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { useTender } from '../context/TenderContext';
-import { 
-  formatIDR, 
-  truncateAddress, 
-  formatDuration 
+import {
+  formatIDR,
+  truncateAddress,
+  formatDuration
 } from '../utils/crypto';
 import { formatIpfsGatewayUrl } from '../utils/ipfsService';
-import { 
-  X, 
-  Clock, 
-  FileText, 
-  ExternalLink, 
-  ShieldCheck, 
-  Lock, 
-  Unlock, 
-  Trophy, 
-  CheckCircle2, 
+import { Button, StatusPill, STATUS_TONE } from './ui';
+import {
+  X,
+  FileText,
+  ExternalLink,
+  Lock,
+  Unlock,
+  Trophy,
+  CheckCircle2,
   AlertCircle,
   Building,
   FastForward,
-  ShieldAlert,
   RefreshCw
 } from 'lucide-react';
 
 import { ethers } from 'ethers';
 
-export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
-  const { 
-    currentTime, 
-    getTenderStatus, 
-    currentAccount, 
+export function TenderDetailModal({ tender, onClose, onOpenVendorModal, activePortal }) {
+  const {
+    currentTime,
+    getTenderStatus,
+    currentAccount,
     kunciPemenangTender,
     jumpToPhase,
     mode,
-    isOwner,
     contractOwner,
     syncContractData,
     isSyncing,
@@ -65,7 +62,7 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
           'function dataPenawaran(uint256, address) view returns (bytes32 hashTerkunci, string ipfsProposalTeknis, uint256 hargaTerbukaIDR, bool sudahCommit, bool sudahReveal, bool memenuhiSyaratPagu)'
         ];
         const contract = new ethers.Contract(deployedContractAddress, abi, provider);
-        
+
         const fetchedList = [];
         const seenAddrs = new Set();
 
@@ -148,36 +145,36 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div 
-        className="modal-content max-w-3xl w-full mx-auto"
+      <div
+        className="modal-content max-w-3xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-4 sm:p-6 border-b border-slate-100 flex items-start justify-between gap-3 sm:gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
+        <div className="p-6 border-b border-slate-100 flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 mb-2">
               <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
                 Tender #{tender.id}
               </span>
-              <span className={`badge-chip ${status.badge} text-[10px]`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${status.dot}`}></span>
+              <StatusPill tone={STATUS_TONE[status.stage] || 'neutral'}>
                 {status.label}
-              </span>
+              </StatusPill>
             </div>
-            <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-lg font-bold text-slate-900 tracking-tight">
               {tender.namaProyek}
             </h2>
             <p className="text-xs text-slate-500 mt-1 flex flex-wrap items-center gap-1.5">
               <Building className="w-3.5 h-3.5 text-slate-400 shrink-0" />
               <span>{tender.satuanKerja || "Panitia Pengadaan Pemerintah"}</span>
-              <span className="hidden sm:inline">•</span>
-              <span className="text-[11px] text-slate-400 sm:text-slate-500">{tender.kategori}</span>
+              <span className="text-slate-300">•</span>
+              <span>{tender.kategori}</span>
             </p>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition shrink-0"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
+            aria-label="Tutup"
           >
             <X className="w-5 h-5" />
           </button>
@@ -186,32 +183,32 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
         {/* Content Body */}
         <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
           {errorMsg && (
-            <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 text-xs flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 text-rose-600 mt-0.5 shrink-0" />
+            <div className="p-3 bg-status-danger-bg border border-status-danger-border rounded-control text-status-danger-text text-xs flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-status-danger-dot mt-0.5 shrink-0" />
               <div>{errorMsg}</div>
             </div>
           )}
 
           {/* Key Metrics */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
-              <div className="text-[11px] text-slate-500 font-medium">Pagu Anggaran Maksimal:</div>
+            <div className="bg-slate-50 p-3.5 rounded-control border border-slate-200">
+              <div className="text-2xs text-slate-500 font-medium">Pagu Anggaran Maksimal:</div>
               <div className="text-lg font-bold text-slate-900 mt-0.5 tabular-nums">
                 {formatIDR(tender.paguAnggaranIDR)}
               </div>
             </div>
 
-            <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
-              <div className="text-[11px] text-slate-500 font-medium">Penawaran Terendah Saat Ini:</div>
-              <div className="text-lg font-bold text-emerald-700 mt-0.5 tabular-nums">
+            <div className="bg-slate-50 p-3.5 rounded-control border border-slate-200">
+              <div className="text-2xs text-slate-500 font-medium">Penawaran Terendah Saat Ini:</div>
+              <div className="text-lg font-bold text-status-done-text mt-0.5 tabular-nums">
                 {tender.pemenang && tender.pemenang !== '0x0000000000000000000000000000000000000000' && tender.penawaranTerendahIDR && tender.penawaranTerendahIDR <= tender.paguAnggaranIDR
                   ? formatIDR(tender.penawaranTerendahIDR)
                   : (status.stage === 'COMPLETED' ? "Tidak Ada (Gugur)" : "Belum Terbuka / Rahasia")}
               </div>
             </div>
 
-            <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
-              <div className="text-[11px] text-slate-500 font-medium">Total Peserta Terdaftar:</div>
+            <div className="bg-slate-50 p-3.5 rounded-control border border-slate-200">
+              <div className="text-2xs text-slate-500 font-medium">Total Peserta Terdaftar:</div>
               <div className="text-lg font-bold text-slate-900 mt-0.5">
                 {tender.peserta?.length || 0} Vendor
               </div>
@@ -221,41 +218,41 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
           {/* Winner Banner if finished */}
           {status.stage === 'COMPLETED' && (
             tender.pemenang && tender.pemenang !== '0x0000000000000000000000000000000000000000' && tender.penawaranTerendahIDR && tender.penawaranTerendahIDR <= tender.paguAnggaranIDR ? (
-              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
-                  <Trophy className="w-5 h-5 text-amber-500" />
+              <div className="bg-status-done-bg border border-status-done-border rounded-control p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-status-done-bg border border-status-done-border text-status-done-text flex items-center justify-center shrink-0">
+                  <Trophy className="w-5 h-5 text-status-reveal-dot" />
                 </div>
                 <div className="text-xs">
-                  <div className="font-bold text-emerald-950 text-sm flex items-center gap-2">
+                  <div className="font-bold text-status-done-text text-sm flex flex-wrap items-center gap-2">
                     <span>Pemenang Resmi Disahkan di Blockchain</span>
                     {tender.namaPerusahaanPemenang && (
-                      <span className="bg-emerald-200/80 text-emerald-900 text-[11px] px-2 py-0.5 rounded-full font-bold border border-emerald-300">
+                      <span className="bg-white text-status-done-text text-2xs px-2 py-0.5 rounded-full font-bold border border-status-done-border">
                         {tender.namaPerusahaanPemenang}
                       </span>
                     )}
                   </div>
-                  <div className="text-emerald-800 mt-0.5">
+                  <div className="text-slate-700 mt-0.5">
                     {tender.namaPerusahaanPemenang ? (
                       <span>Perusahaan: <strong>{tender.namaPerusahaanPemenang}</strong> • Wallet: <span className="font-mono font-semibold">{truncateAddress(tender.pemenang)}</span></span>
                     ) : (
                       <span>Alamat Vendor: <span className="font-mono font-semibold">{tender.pemenang}</span></span>
                     )}
                   </div>
-                  <div className="text-emerald-700 text-[11px] mt-0.5">
+                  <div className="text-status-done-text text-2xs mt-0.5">
                     Nilai Penawaran Sah: <strong>{formatIDR(tender.penawaranTerendahIDR)}</strong> (Efisiensi Anggaran {formatIDR(tender.paguAnggaranIDR - tender.penawaranTerendahIDR)})
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
-                  <AlertCircle className="w-5 h-5 text-amber-600" />
+              <div className="bg-status-reveal-bg border border-status-reveal-border rounded-control p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-white border border-status-reveal-border text-status-reveal-text flex items-center justify-center shrink-0">
+                  <AlertCircle className="w-5 h-5 text-status-reveal-dot" />
                 </div>
                 <div className="text-xs">
-                  <div className="font-bold text-amber-950 text-sm">
+                  <div className="font-bold text-status-reveal-text text-sm">
                     Tender Selesai Tanpa Pemenang Sah (Gugur)
                   </div>
-                  <div className="text-amber-800 mt-0.5">
+                  <div className="text-slate-700 mt-0.5">
                     Tidak ada vendor peserta yang membuka harga (<strong>Reveal</strong>) sebelum batas waktu habis, sehingga penawaran terkunci tidak dapat dinilai.
                   </div>
                 </div>
@@ -269,7 +266,7 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
               Jadwal Waktu Blok (Block Timestamp Timetable)
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-              <div className="p-3 rounded-lg border border-slate-200 bg-white">
+              <div className="p-3 rounded-control border border-slate-200 bg-white">
                 <div className="flex items-center justify-between text-slate-500 mb-1">
                   <span>Fase Commit (Penawaran Rahasia):</span>
                   <span className="font-mono font-medium">
@@ -281,7 +278,7 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
                 </div>
               </div>
 
-              <div className="p-3 rounded-lg border border-slate-200 bg-white">
+              <div className="p-3 rounded-control border border-slate-200 bg-white">
                 <div className="flex items-center justify-between text-slate-500 mb-1">
                   <span>Fase Reveal (Pembukaan Harga):</span>
                   <span className="font-mono font-medium">
@@ -296,26 +293,26 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
           </div>
 
           {/* Dokumen Kerangka Acuan Kerja (KAK) */}
-          <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2">
-            <div className="flex items-center justify-between text-xs">
+          <div className="p-4 rounded-control border border-slate-200 bg-slate-50/50 space-y-2">
+            <div className="flex items-center justify-between text-xs gap-2">
               <span className="font-semibold text-slate-900 flex items-center gap-1.5">
                 <FileText className="w-4 h-4 text-slate-600" />
                 Kerangka Acuan Kerja (KAK) Pemerintah
               </span>
-              <a 
+              <a
                 href={formatIpfsGatewayUrl(tender.ipfsDokumenKAK)}
                 target="_blank"
                 rel="noreferrer"
-                className="text-blue-600 hover:underline flex items-center gap-1 text-[11px]"
+                className="text-brand-700 hover:text-brand-900 hover:underline flex items-center gap-1 text-2xs font-medium shrink-0"
               >
                 <span>Buka via IPFS Gateway</span>
                 <ExternalLink className="w-3 h-3" />
               </a>
             </div>
-            <div className="bg-white p-2.5 rounded border border-slate-200 font-mono text-[11px] text-slate-600 break-all select-all">
+            <div className="bg-white p-2.5 rounded-control border border-slate-200 font-mono text-2xs text-slate-600 break-all select-all">
               {tender.ipfsDokumenKAK}
             </div>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-2xs text-slate-400">
               Dokumen spesifikasi teknis dan tata cara pengadaan yang ditandatangani PPK dan tersimpan di IPFS.
             </p>
           </div>
@@ -332,19 +329,19 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
                     type="button"
                     onClick={() => syncContractData()}
                     disabled={isSyncing}
-                    className="p-1 text-slate-400 hover:text-blue-600 rounded transition"
+                    className="p-1 text-slate-400 hover:text-brand-700 rounded transition"
                     title="Sinkronkan data peserta langsung dari blockchain"
                   >
-                    <RefreshCw className={`w-3 h-3 ${isSyncing ? 'animate-spin text-blue-600' : ''}`} />
+                    <RefreshCw className={`w-3 h-3 ${isSyncing ? 'animate-spin text-brand-600' : ''}`} />
                   </button>
                 )}
               </div>
-              <span className="text-[11px] text-slate-400 font-medium">
+              <span className="text-2xs text-slate-400 font-medium">
                 Kriptografi Commit-Reveal Log
               </span>
             </div>
 
-            <div className="border border-slate-200 rounded-xl overflow-hidden divide-y divide-slate-100 text-xs">
+            <div className="border border-slate-200 rounded-control overflow-hidden divide-y divide-slate-100 text-xs">
               {bids.length === 0 ? (
                 <div className="p-6 text-center text-slate-400">
                   Belum ada vendor yang mengirimkan penawaran pada lelang ini.
@@ -355,7 +352,7 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-slate-900">{bid.vendorName}</span>
-                        <span className="font-mono text-[11px] text-slate-400">({truncateAddress(bid.vendorAddress)})</span>
+                        <span className="font-mono text-2xs text-slate-400">({truncateAddress(bid.vendorAddress)})</span>
                       </div>
 
                       {bid.sudahReveal ? (
@@ -363,25 +360,19 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
                           <span className="font-bold text-slate-900 text-sm tabular-nums">
                             {formatIDR(bid.hargaTerbukaIDR)}
                           </span>
-                          {bid.memenuhiSyaratPagu ? (
-                            <span className="badge-chip bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px]">
-                              Memenuhi Pagu
-                            </span>
-                          ) : (
-                            <span className="badge-chip bg-rose-50 text-rose-700 border-rose-200 text-[10px]">
-                              Melebihi Pagu
-                            </span>
-                          )}
+                          <StatusPill tone={bid.memenuhiSyaratPagu ? 'done' : 'danger'} dot={false}>
+                            {bid.memenuhiSyaratPagu ? 'Memenuhi Pagu' : 'Melebihi Pagu'}
+                          </StatusPill>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-1.5 text-sky-800 bg-sky-50 px-2 py-0.5 rounded text-[11px] font-medium border border-sky-100">
-                          <Lock className="w-3 h-3 text-sky-600" />
-                          <span>Harga Terkunci (Sealed Bid)</span>
-                        </div>
+                        <StatusPill tone="commit" dot={false}>
+                          <Lock className="w-3 h-3" />
+                          Harga Terkunci (Sealed Bid)
+                        </StatusPill>
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-500">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-2xs text-slate-500">
                       <div className="truncate">
                         Hash Komitmen: <span className="font-mono text-slate-700">{truncateAddress(bid.hashTerkunci)}</span>
                       </div>
@@ -392,7 +383,7 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
                             href={formatIpfsGatewayUrl(bid.ipfsProposalTeknis)}
                             target="_blank"
                             rel="noreferrer"
-                            className="font-mono text-blue-600 hover:underline flex items-center gap-1"
+                            className="font-mono text-brand-700 hover:underline flex items-center gap-1"
                             title="Buka dokumen proposal teknis di IPFS Gateway"
                           >
                             <span>{bid.ipfsProposalTeknis.slice(0, 18)}...</span>
@@ -420,7 +411,7 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
                 {status.stage === 'COMMIT' && (
                   <button
                     onClick={() => jumpToPhase(tender.id, 'reveal')}
-                    className="text-blue-600 hover:underline font-medium"
+                    className="text-brand-700 hover:underline font-medium"
                   >
                     Maju ke Fase Reveal &rarr;
                   </button>
@@ -428,7 +419,7 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
                 {status.stage === 'REVEAL' && (
                   <button
                     onClick={() => jumpToPhase(tender.id, 'finish')}
-                    className="text-amber-700 hover:underline font-medium"
+                    className="text-status-reveal-text hover:underline font-medium"
                   >
                     Maju ke Selesai &rarr;
                   </button>
@@ -438,56 +429,59 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
                 )}
               </div>
             ) : (
-              <span className="text-[11px] text-slate-500">
-                Mode Web3 Aktif • Transaksi divalidasi oleh konsensus Base Sepolia.
+              <span className="text-2xs text-slate-500">
+                Mode Web3 Aktif • Transaksi divalidasi oleh konsensus Base Sepolia (OP Stack L2).
               </span>
             )}
           </div>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <button
+          <div className="flex items-center gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={onClose}
-              className="btn-secondary text-xs flex-1 sm:flex-initial justify-center"
             >
               Tutup
-            </button>
+            </Button>
 
-            {status.stage === 'COMMIT' && (
-              <button
+            {status.stage === 'COMMIT' && activePortal === 'vendor' && (
+              <Button
+                size="sm"
+                className="gap-1.5"
                 onClick={() => {
                   onClose();
                   onOpenVendorModal(tender, 'hasher');
                 }}
-                className="btn-primary text-xs bg-amber-600 hover:bg-amber-700 flex-1 sm:flex-initial justify-center"
               >
                 <Lock className="w-3.5 h-3.5" />
                 <span>Kirim Penawaran Tersegel</span>
-              </button>
+              </Button>
             )}
 
-            {status.stage === 'REVEAL' && (
-              <button
+            {status.stage === 'REVEAL' && activePortal === 'vendor' && (
+              <Button
+                size="sm"
+                className="gap-1.5"
                 onClick={() => {
                   onClose();
                   onOpenVendorModal(tender, 'reveal');
                 }}
-                className="btn-primary text-xs bg-amber-600 hover:bg-amber-700 flex-1 sm:flex-initial justify-center"
               >
                 <Unlock className="w-3.5 h-3.5" />
                 <span>Buka Penawaran (Reveal)</span>
-              </button>
+              </Button>
             )}
 
-            {status.stage === 'AWAITING_LOCK' && (
-              <button
+            {status.stage === 'AWAITING_LOCK' && currentAccount.role === 'PANITIA' && (
+              <Button
+                size="sm"
+                className="gap-1.5"
                 onClick={handleKunciPemenang}
-                disabled={isLocking || (mode === 'web3' && !isOwner)}
-                className="btn-primary text-xs bg-indigo-700 hover:bg-indigo-800 disabled:opacity-50 flex items-center gap-1.5 flex-1 sm:flex-initial justify-center"
-                title={mode === 'web3' && !isOwner ? "Hanya Panitia Pemerintah (Owner) yang dapat mengunci pemenang" : ""}
+                disabled={isLocking}
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>{isLocking ? "Mengesahkan..." : "Kunci Pemenang"}</span>
-              </button>
+                <span>{isLocking ? "Mengesahkan di Blockchain..." : "Kunci Pemenang Tender"}</span>
+              </Button>
             )}
           </div>
         </div>

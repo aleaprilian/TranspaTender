@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTender } from './context/TenderContext';
+import { SIMULATED_ACCOUNTS } from './utils/crypto';
 import { Header } from './components/Header';
 import { Web3ControlBar } from './components/Web3ControlBar';
 import { TransactionToast } from './components/TransactionToast';
@@ -7,10 +8,10 @@ import { GovernmentPortal } from './components/GovernmentPortal';
 import { VendorPortal } from './components/VendorPortal';
 import { CreateTenderModal } from './components/CreateTenderModal';
 import { TenderDetailModal } from './components/TenderDetailModal';
-import { ShieldCheck, BookOpen, ExternalLink } from 'lucide-react';
+import { ShieldCheck, ExternalLink } from 'lucide-react';
 
 export function App() {
-  const { tenders } = useTender();
+  const { tenders, mode, selectedAccountId, setSelectedAccountId } = useTender();
   // Read portal from URL or default to 'pemerintah'
   const getInitialPortal = () => {
     try {
@@ -60,6 +61,16 @@ export function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  // Sandbox: entitas aktif terkunci pada peran portal (Pemerintah -> Panitia/Auditor, Vendor -> Vendor A/B)
+  useEffect(() => {
+    if (mode !== 'simulation') return;
+    const defaultEntity = activePortal === 'pemerintah' ? 'panitia' : 'vendor_a';
+    const entity = SIMULATED_ACCOUNTS.find(a => a.id === selectedAccountId);
+    if (!entity || entity.portal !== activePortal) {
+      setSelectedAccountId(defaultEntity);
+    }
+  }, [mode, activePortal, selectedAccountId, setSelectedAccountId]);
+
   const handleOpenVendorModal = (tender, action) => {
     setVendorPortalTenderId(tender.id);
     setVendorPortalTab(action === 'commit' ? 'hasher' : action); // Route to Kalkulator Hash first for commit
@@ -68,7 +79,7 @@ export function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FCFCFD]">
-      {/* Dynamic Header adapted for Government vs Vendor */}
+      {/* Unified app bar: brand, portal switcher, environment, wallet & actions */}
       <Header 
         activePortal={activePortal} 
         setActivePortal={setActivePortal} 
@@ -108,36 +119,39 @@ export function App() {
           tender={tenders.find(t => t.id === selectedTenderDetail.id) || selectedTenderDetail} 
           onClose={() => setSelectedTenderDetail(null)}
           onOpenVendorModal={handleOpenVendorModal}
+          activePortal={activePortal}
         />
       )}
 
-      {/* Minimalist Footer */}
-      <footer className="border-t border-slate-200/80 bg-white py-5 sm:py-6 text-xs text-slate-500 mt-auto">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-2 gap-y-1 text-center sm:text-left">
+      {/* Footer */}
+      <footer className="border-t border-slate-200 bg-white py-6 text-xs text-slate-500 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-2">
             <span className="font-semibold text-slate-800">TranspaTender ID</span>
-            <span>•</span>
+            <span className="text-slate-300">•</span>
             <span>Sistem E-Procurement Blockchain Terdesentralisasi</span>
-            <span className="hidden xs:inline">•</span>
-            <span className="text-[11px] bg-blue-50 text-blue-700 border border-blue-200 px-1.5 py-0.5 rounded font-medium">
+            <span className="text-slate-300">•</span>
+            <span className="text-[11px] bg-brand-50 text-brand-700 border border-brand-200 px-1.5 py-0.5 rounded font-medium">
               Base Sepolia (L2)
             </span>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3 text-slate-600">
-            <button 
-              onClick={() => setActivePortal(activePortal === 'pemerintah' ? 'vendor' : 'pemerintah')}
-              className="hover:text-slate-900 transition flex items-center gap-1 font-medium"
+          <div className="flex items-center gap-4 text-slate-600">
+            <a
+              href="https://github.com/aleaprilian/TranspaTender"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-slate-900 transition"
             >
-              <span>Ganti ke {activePortal === 'pemerintah' ? 'Portal Rekanan Vendor' : 'Portal Pemerintah LPSE'}</span>
-            </button>
-            <a 
-              href="https://sepolia.basescan.org/" 
-              target="_blank" 
+              Dokumentasi & Kode Sumber
+            </a>
+            <a
+              href="https://sepolia.basescan.org/"
+              target="_blank"
               rel="noreferrer"
               className="hover:text-slate-900 transition flex items-center gap-1"
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+              <ShieldCheck className="w-3.5 h-3.5 text-brand-600" />
               <span>Base Sepolia Basescan</span>
               <ExternalLink className="w-2.5 h-2.5" />
             </a>
