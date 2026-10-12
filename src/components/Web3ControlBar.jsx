@@ -150,33 +150,22 @@ export function Web3ControlBar() {
               )}
             </div>
 
-            {/* Quick Network Selector */}
-            <div className="flex flex-wrap items-center gap-1.5 pt-1 md:pt-0">
-              <span className="text-slate-400 text-[11px]">Ganti:</span>
-              <button
-                onClick={() => switchNetwork(84532)}
-                className={`px-2 py-0.5 sm:py-1 rounded text-[11px] font-medium border transition ${web3ChainId === 84532 ? 'bg-blue-50 text-blue-700 border-blue-300 font-semibold' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
-              >
-                Base Sepolia
-              </button>
-              <button
-                onClick={() => switchNetwork(11155111)}
-                className={`px-2 py-0.5 sm:py-1 rounded text-[11px] font-medium border transition ${web3ChainId === 11155111 ? 'bg-sky-50 text-sky-700 border-sky-300 font-semibold' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
-              >
-                Eth Sepolia
-              </button>
-              <button
-                onClick={() => switchNetwork(80002)}
-                className={`px-2 py-0.5 sm:py-1 rounded text-[11px] font-medium border transition ${web3ChainId === 80002 ? 'bg-purple-50 text-purple-700 border-purple-300 font-semibold' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
-              >
-                Polygon
-              </button>
-              <button
-                onClick={() => switchNetwork(31337)}
-                className={`px-2 py-0.5 sm:py-1 rounded text-[11px] font-medium border transition ${web3ChainId === 31337 ? 'bg-emerald-50 text-emerald-700 border-emerald-300 font-semibold' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
-              >
-                Local
-              </button>
+            {/* Network Badge: Exclusive Base Sepolia */}
+            <div className="flex items-center gap-1.5 pt-1 md:pt-0">
+              {web3ChainId !== 84532 ? (
+                <button
+                  onClick={() => switchNetwork(84532)}
+                  className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition flex items-center gap-1.5 shadow-2xs"
+                  title="Beralih ke jaringan resmi TranspaTender: Base Sepolia Testnet"
+                >
+                  <span>Beralih ke Base Sepolia</span>
+                </button>
+              ) : (
+                <span className="text-[11px] font-medium text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                  <span>Jaringan Resmi: Base Sepolia Testnet</span>
+                </span>
+              )}
             </div>
           </div>
 

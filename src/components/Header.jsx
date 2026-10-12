@@ -179,32 +179,7 @@ export function Header({ activePortal, setActivePortal, onOpenCreateModal }) {
           </div>
         </div>
 
-        {/* Center: Active Portal Switcher */}
-        <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-semibold">
-          <button
-            onClick={() => setActivePortal('pemerintah')}
-            className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 ${
-              isGov 
-                ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/80 font-bold' 
-                : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <Building className={`w-3.5 h-3.5 ${isGov ? 'text-amber-600' : 'text-slate-400'}`} />
-            <span>Pemerintah</span>
-          </button>
 
-          <button
-            onClick={() => setActivePortal('vendor')}
-            className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 ${
-              !isGov 
-                ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/80 font-bold' 
-                : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <Briefcase className={`w-3.5 h-3.5 ${!isGov ? 'text-blue-600' : 'text-slate-400'}`} />
-            <span>Rekanan Vendor</span>
-          </button>
-        </div>
 
         {/* Right Section: Time Controls & User Wallet */}
         <div className="flex items-center gap-1.5 sm:gap-3">

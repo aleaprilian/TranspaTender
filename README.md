@@ -6,7 +6,10 @@
 [![Storage](https://img.shields.io/badge/Storage-IPFS_%2F_Pinata-65C2CB?style=for-the-badge&logo=ipfs)](https://pinata.cloud/)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
-> 🌐 **Live Website Portal:** [https://aleaprilian.github.io/TranspaTender/](https://aleaprilian.github.io/TranspaTender/)  
+> 🏛️ **Portal Pemerintah (LPSE / PPK):** [https://aleaprilian.github.io/TranspaTender/?portal=pemerintah](https://aleaprilian.github.io/TranspaTender/?portal=pemerintah)  
+> 🏢 **Portal Rekanan Penyedia (Vendor):** [https://aleaprilian.github.io/TranspaTender/?portal=vendor](https://aleaprilian.github.io/TranspaTender/?portal=vendor)  
+> ⚡ **Jaringan Eksklusif:** **Base Sepolia Testnet** (Chain ID: `84532`)  
+>  
 > **TranspaTender ID** adalah sistem pengadaan barang dan jasa (*e-procurement*) pemerintah berbasis *blockchain* L2 (**Base Sepolia Testnet**) yang memadukan protokol kriptografi **Commit-Reveal (Sealed-Bid)** dan penyimpanan terdesentralisasi **IPFS**. Sistem ini dirancang untuk membasmi praktik korupsi, kolusi, dan nepotisme (KKN) seperti pembocoran harga lelang oleh orang dalam (*insider trading*), manipulasi batas waktu (*backdating*), serta pengubahan pemenang tender di balik pintu.
 
 ---
@@ -32,9 +35,10 @@
 * 🛡️ **Zero Insider Trading & Anti-Sniping:** Mustahil ada vendor titipan yang mengajukan harga lebih murah Rp 1 di detik-detik terakhir karena semua komitmen harga telah terkunci mati di fase awal.
 * 🏢 **Pencatatan Identitas Perusahaan On-Chain:** Mendukung pencatatan nama legal PT/CV vendor secara langsung di blockchain, tersimpan di struct penawaran dan log event.
 * 📦 **Penyimpanan Terdesentralisasi IPFS (Pinata):** Dokumen Kerangka Acuan Kerja (KAK) pemerintah dan Proposal Teknis vendor di-*pin* ke jaringan IPFS permanen. Dokumen tidak bisa disunting, dihapus, atau ditukar secara sepihak.
-* 🏛️ **Dual Portal Presentation:** Antarmuka dipisahkan menjadi dua modul mandiri:
-  * **Portal Pemerintah (LPSE / PPK):** Untuk menerbitkan paket tender, menetapkan pagu IDR, memantau lelang, dan mengesahkan pemenang.
-  * **Portal Rekanan Vendor:** Untuk melihat katalog lelang, kalkulator *hash*, mengajukan penawaran terkunci, brankas sandi lokal, dan uji coba anti-curang.
+* 🏛️ **Dual Portal Mandiri (Dedicated Portals):** Antarmuka dipisahkan menjadi dua modul mandiri dengan tautan langsung agar tidak membingungkan pengguna baru:
+  * **[Portal Pemerintah (LPSE / PPK)](https://aleaprilian.github.io/TranspaTender/?portal=pemerintah):** Untuk panitia menerbitkan paket tender, menetapkan pagu anggaran IDR, memantau lelang, dan mengesahkan pemenang.
+  * **[Portal Rekanan Penyedia (Vendor)](https://aleaprilian.github.io/TranspaTender/?portal=vendor):** Untuk vendor rekanan melihat katalog lelang, menghitung *hash* penawaran, mengajukan komitmen tersegel, brankas sandi lokal, dan uji coba anti-curang.
+* ⚡ **Eksklusif Base Sepolia Testnet (L2):** TranspaTender hanya menggunakan **Base Sepolia Testnet (Chain ID 84532)** untuk menjamin konsistensi, kecepatan eksekusi instan, biaya gas fee minimal, dan auditabilitas terpusat tanpa fragmentasi jaringan.
 * 🔍 **Pusat Audit Publik & Laporan KPK/BPK (Audit Explorer):** Tersedia modul audit independen dengan verifikator kriptografi untuk membuktikan integritas matematis setiap transaksi langsung di peramban.
 
 ---
@@ -194,14 +198,13 @@ transpatender-id/
 │   │   ├── AuditExplorer.jsx     # Modul Audit Publik & Verifikator Keccak-256
 │   │   ├── CreateTenderModal.jsx # Modal Penerbitan Tender Baru oleh PPK
 │   │   ├── GovernmentPortal.jsx  # Antarmuka LPSE Panitia Pemerintah
-│   │   ├── Header.jsx            # Bilah Navigasi Utama & Switcher Mode
+│   │   ├── Header.jsx            # Bilah Navigasi Utama & Kontrol Waktu/Dompet
 │   │   ├── IpfsConfigModal.jsx   # Pengaturan Gateway & Pinata JWT
 │   │   ├── IpfsUploadField.jsx   # Komponen Drag-and-Drop Pinning IPFS
-│   │   ├── PortalSwitcherBar.jsx # Bilah Cepat Pindah Portal (Gov <-> Vendor)
 │   │   ├── TenderDetailModal.jsx # Rincian Audit, Dokumen KAK & Proposal
 │   │   ├── TenderList.jsx        # Daftar Kartu Paket Tender & Timeline
 │   │   ├── VendorPortal.jsx      # Antarmuka Rekanan (Commit, Reveal, Vault)
-│   │   └── Web3ControlBar.jsx    # Status Koneksi Wallet, Switch Network & Faucet
+│   │   └── Web3ControlBar.jsx    # Status Koneksi Wallet & Smart Contract Base Sepolia
 │   ├── context/
 │   │   └── TenderContext.jsx     # State Manager Web3 & Logika Sinkronisasi On-Chain
 │   ├── contracts/
@@ -210,7 +213,7 @@ transpatender-id/
 │   ├── utils/
 │   │   ├── crypto.js             # Generator Hash Keccak-256 & Formatter Rupiah
 │   │   └── ipfsService.js        # Integrasi Pinata Cloud API & Gateway Resolver
-│   ├── App.jsx                   # Root Component & Routing Portal
+│   ├── App.jsx                   # Root Component & Routing Portal Mandiri
 │   ├── index.css                 # Desain Tema Clean Governance (Tailwind CSS)
 │   └── main.jsx                  # Entry Point React
 ├── compile.js                    # Script Node.js Kompilasi Solc Internal
@@ -259,12 +262,14 @@ npm run dev
 Buka browser Anda di `http://localhost:5173/`.
 
 Untuk mencoba skenario dua aktor (Panitia vs Vendor):
-* **Tab Browser 1 (Panitia):** Buka `http://localhost:5173/?portal=pemerintah` (Hubungkan akun MetaMask 1).
-* **Tab Browser 2 (Vendor):** Buka `http://localhost:5173/?portal=vendor` (Hubungkan akun MetaMask 2).
+* **Tab Browser 1 (Panitia Pemerintah):** Buka `http://localhost:5173/?portal=pemerintah` (Hubungkan akun MetaMask 1).
+* **Tab Browser 2 (Vendor Rekanan):** Buka `http://localhost:5173/?portal=vendor` (Hubungkan akun MetaMask 2).
 
 ---
 
 ## 🌐 Panduan Menghubungkan Jaringan Base Sepolia
+
+TranspaTender beroperasi **secara eksklusif** di jaringan **Base Sepolia Testnet (L2)**. Penggunaan jaringan tunggal ini memastikan seluruh data tender, audit komitmen kriptografi, dan pengesahan pemenang tercatat pada satu konsensus terpercaya tanpa fragmentasi atau kebingungan lintas-jaringan.
 
 Tambahkan jaringan **Base Sepolia Testnet** ke dompet MetaMask Anda:
 
@@ -272,7 +277,7 @@ Tambahkan jaringan **Base Sepolia Testnet** ke dompet MetaMask Anda:
 | :--- | :--- |
 | **Network Name** | Base Sepolia Testnet |
 | **RPC URL** | `https://sepolia.base.org` |
-| **Chain ID** | `84532` |
+| **Chain ID** | `84532` (Hex: `0x14a34`) |
 | **Currency Symbol** | `ETH` |
 | **Block Explorer URL** | `https://sepolia.basescan.org/` |
 
