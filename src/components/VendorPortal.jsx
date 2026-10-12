@@ -23,7 +23,6 @@ import {
   AlertOctagon,
   ArrowRight,
   ArrowLeft,
-  Briefcase,
   Layers,
   Archive,
   Search,
@@ -257,42 +256,6 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
 
   return (
     <div className="space-y-6">
-      {/* Title & Explanatory Box for Vendor Portal */}
-      <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 text-white rounded-2xl p-4 sm:p-6 lg:p-7 shadow-lg border border-blue-900/50">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="px-2.5 py-1 rounded bg-blue-500/20 text-blue-300 font-semibold text-[11px] border border-blue-500/30 flex items-center gap-1.5">
-                <Briefcase className="w-3.5 h-3.5 text-blue-400" />
-                <span>Portal Resmi Rekanan Penyedia & Vendor</span>
-              </span>
-              <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] border border-slate-700">
-                Protokol Kriptografi Sealed-Bid Keccak-256
-              </span>
-            </div>
-
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-white">
-              TranspaTender Vendor Hub
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-300 max-w-3xl leading-relaxed">
-              Portal Rekanan Penyedia Barang/Jasa untuk menyusun harga lelang rahasia, menyetor komitmen terkunci (*commit*), 
-              dan membongkar harga (*reveal*) secara adil tanpa risiko intipan harga oleh pihak internal (*anti-insider trading*).
-            </p>
-          </div>
-
-          <div className="bg-slate-900/90 border border-slate-700 p-3.5 sm:p-4 rounded-xl text-xs space-y-1.5 sm:space-y-2 shrink-0 w-full lg:w-auto">
-            <div className="text-slate-400 text-[11px]">Identitas Akun Vendor:</div>
-            <div className="font-bold text-white text-sm flex items-center gap-1.5">
-              <span>{currentAccount.name}</span>
-            </div>
-            <div className="font-mono text-[11px] text-blue-300">{truncateAddress(currentAccount.address)}</div>
-            <div className="text-[10px] text-emerald-400 pt-1 border-t border-slate-800">
-              ● Siap berpartisipasi di Base Sepolia Testnet
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Sub Tabs Navigation */}
       <div className="flex border-b border-slate-200 gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar text-xs sm:text-sm font-medium pb-0.5">
         <button
