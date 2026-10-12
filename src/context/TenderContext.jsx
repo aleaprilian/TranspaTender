@@ -134,7 +134,7 @@ export function TenderProvider({ children }) {
         address: web3Account || ethers.ZeroAddress,
         role: isOwner ? "PANITIA" : "VENDOR",
         balance: `${web3Balance} ${(SUPPORTED_NETWORKS[web3ChainId]?.nativeCurrency?.symbol) || 'ETH'}`,
-        badgeColor: isOwner ? "bg-slate-900 text-white" : "bg-indigo-600 text-white"
+        badgeColor: isOwner ? "bg-brand-900 text-white" : "bg-brand-50 text-brand-700 border border-brand-200"
       };
 
   // Clock tick

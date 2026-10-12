@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Copy, Check, ExternalLink, Code2, ShieldAlert, Cpu, Layers } from 'lucide-react';
+import { Copy, Check, ExternalLink, Code2, ShieldAlert } from 'lucide-react';
+import { Button, Card } from './ui';
 
 const CONTRACT_CODE = `// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
@@ -276,6 +277,13 @@ contract TranspaTender {
     }
 }`;
 
+const LAYERS = [
+  { title: 'Presentation', desc: 'React + Ethers.js + Web3 Provider' },
+  { title: 'Consensus & Execution', desc: 'Base Sepolia Testnet (OP Stack L2 Rollup)' },
+  { title: 'Storage Layer', desc: 'IPFS Decentralized CID (Dokumen KAK & Proposal)' },
+  { title: 'Public Audit', desc: 'Basescan Explorer (KPK, BPK, Publik)' }
+];
+
 export function ContractViewer() {
   const [copied, setCopied] = useState(false);
 
@@ -287,81 +295,75 @@ export function ContractViewer() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      {/* Intro Banner */}
-      <div className="mini-card p-4 sm:p-6 bg-white border border-slate-200 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      {/* Intro */}
+      <Card className="p-6 space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
           <div>
-            <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
-              Arsitektur & Kode Smart Contract (TranspaTender.sol)
+            <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+              Arsitektur &amp; Kode Smart Contract (TranspaTender.sol)
             </h2>
             <p className="text-xs text-slate-500 mt-1">
               Solidity ^0.8.20 • Base Sepolia Testnet • Protokol Kriptografi Commit-Reveal (Sealed-Bid)
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
-            <a
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              as="a"
               href="https://remix.ethereum.org/"
               target="_blank"
               rel="noreferrer"
-              className="btn-secondary text-xs justify-center"
+              variant="secondary"
+              size="sm"
             >
               <span>Buka Remix IDE</span>
               <ExternalLink className="w-3 h-3" />
-            </a>
-            <button
-              onClick={handleCopy}
-              className="btn-primary text-xs justify-center"
-            >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+            </Button>
+            <Button onClick={handleCopy} size="sm" className="gap-1.5">
+              {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
               <span>{copied ? "Tersalin!" : "Salin Kode Solidity"}</span>
-            </button>
+            </Button>
           </div>
         </div>
 
         {/* 4 System Layers Diagram */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs pt-2">
-          <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
-            <div className="font-semibold text-slate-800 mb-1">1. Presentation</div>
-            <p className="text-[11px] text-slate-500">React + Ethers.js + Web3 Provider</p>
-          </div>
-          <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
-            <div className="font-semibold text-blue-900 mb-1">2. Consensus & Execution</div>
-            <p className="text-[11px] text-blue-700">Base Sepolia Testnet (OP Stack L2 Rollup)</p>
-          </div>
-          <div className="p-3 rounded-lg bg-sky-50 border border-sky-200">
-            <div className="font-semibold text-sky-900 mb-1">3. Storage Layer</div>
-            <p className="text-[11px] text-sky-700">IPFS Decentralized CID (Dokumen KAK & Proposal)</p>
-          </div>
-          <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200">
-            <div className="font-semibold text-emerald-900 mb-1">4. Public Audit</div>
-            <p className="text-[11px] text-emerald-700">Basescan Explorer (KPK, BPK, Publik)</p>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs pt-1">
+          {LAYERS.map((layer, i) => (
+            <div key={layer.title} className="p-3 rounded-control bg-slate-50 border border-slate-200">
+              <div className="flex items-center gap-1.5 mb-1">
+                <span className="flex h-4 w-4 items-center justify-center rounded bg-brand-100 text-brand-700 text-2xs font-bold shrink-0">
+                  {i + 1}
+                </span>
+                <div className="font-semibold text-slate-800">{layer.title}</div>
+              </div>
+              <p className="text-2xs text-slate-500 leading-relaxed">{layer.desc}</p>
+            </div>
+          ))}
         </div>
 
         {/* Rupiah Compliance Alert */}
-        <div className="bg-amber-50/70 border border-amber-200/80 rounded-lg p-3 text-xs text-amber-900 flex items-start gap-2">
-          <ShieldAlert className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+        <div className="bg-status-reveal-bg border border-status-reveal-border rounded-control p-3 text-xs text-status-reveal-text flex items-start gap-2">
+          <ShieldAlert className="w-4 h-4 text-status-reveal-dot mt-0.5 shrink-0" />
           <div>
-            <strong>Kepatuhan UU Mata Uang No. 7 Tahun 2011:</strong> Sistem ini tidak menggunakan aset kripto sebagai alat transaksi. 
-            Blockchain murni difungsikan sebagai <em>Immutable Audit Log</em> dan mesin pengunci lelang. Seluruh penawaran dan pagu anggaran dicatat dalam nominal <strong>Rupiah (IDR)</strong>, 
+            <strong>Kepatuhan UU Mata Uang No. 7 Tahun 2011:</strong> Sistem ini tidak menggunakan aset kripto sebagai alat transaksi.
+            Blockchain murni difungsikan sebagai <em>Immutable Audit Log</em> dan mesin pengunci lelang. Seluruh penawaran dan pagu anggaran dicatat dalam nominal <strong>Rupiah (IDR)</strong>,
             sedangkan pembayaran akhir tetap via kas perbankan APBN/APBD.
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Code Box */}
-      <div className="mini-card overflow-hidden border border-slate-200">
+      <Card className="overflow-hidden">
         <div className="bg-slate-900 text-slate-300 px-4 py-2.5 flex items-center justify-between text-xs border-b border-slate-800">
           <div className="flex items-center gap-2 font-mono">
-            <Code2 className="w-4 h-4 text-emerald-400" />
+            <Code2 className="w-4 h-4 text-brand-300" />
             <span>contracts/TranspaTender.sol</span>
           </div>
           <button
             onClick={handleCopy}
             className="flex items-center gap-1 hover:text-white transition"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? <Check className="w-3.5 h-3.5 text-brand-300" /> : <Copy className="w-3.5 h-3.5" />}
             <span>Salin</span>
           </button>
         </div>
@@ -369,7 +371,7 @@ export function ContractViewer() {
         <pre className="p-4 bg-slate-950 text-slate-200 font-mono text-xs overflow-x-auto max-h-[600px] leading-relaxed">
           <code>{CONTRACT_CODE}</code>
         </pre>
-      </div>
+      </Card>
     </div>
   );
 }

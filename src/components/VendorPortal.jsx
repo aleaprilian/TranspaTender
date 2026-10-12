@@ -1,44 +1,51 @@
 import React, { useState, useEffect } from 'react';
 import { useTender } from '../context/TenderContext';
-import { 
-  generateCommitHash, 
-  formatIDR, 
+import {
+  generateCommitHash,
+  formatIDR,
   truncateAddress,
-  formatDuration,
-  SIMULATED_ACCOUNTS 
+  formatDuration
 } from '../utils/crypto';
 import { IpfsUploadField } from './IpfsUploadField';
 import { formatIpfsGatewayUrl } from '../utils/ipfsService';
-import { 
-  KeyRound, 
-  Lock, 
-  ShieldCheck, 
-  Copy, 
-  Check, 
-  AlertTriangle, 
-  Sparkles, 
-  Send, 
-  FileText, 
+import {
+  Button,
+  Card,
+  StatusPill,
+  STATUS_TONE,
+  Tabs,
+  Field,
+  EmptyState
+} from './ui';
+import {
+  Lock,
+  ShieldCheck,
+  Copy,
+  Check,
+  AlertTriangle,
+  Sparkles,
+  Send,
+  FileText,
   Unlock,
   AlertOctagon,
   ArrowRight,
   ArrowLeft,
-  Layers,
+  Briefcase,
   Archive,
   Search,
   Building,
-  Clock,
   ExternalLink,
   Trophy,
-  CheckCircle2
+  RefreshCw,
+  Link as LinkIcon
 } from 'lucide-react';
 
 export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelectTender }) {
-  const { 
-    tenders, 
-    currentTime, 
-    currentAccount, 
-    kirimPenawaranTerkunci, 
+  const {
+    tenders,
+    currentTime,
+    currentAccount,
+    kirimPenawaranTerkunci,
     bukaPenawaran,
     getTenderStatus,
     jumpToPhase,
@@ -46,12 +53,13 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
     web3Account,
     deployedContractAddress,
     syncContractData,
-    getVendorBidLocal
+    getVendorBidLocal,
+    attachContract
   } = useTender();
 
   const [activeSubTab, setActiveSubTab] = useState(initialTab); // 'katalog' | 'hasher' | 'commit' | 'reveal' | 'vault' | 'anticheat'
   const [selectedTenderId, setSelectedTenderId] = useState(initialTenderId || null);
-  
+
   // Hasher Tool State
   const [hasherHarga, setHasherHarga] = useState('920000000');
   const [hasherSalt, setHasherSalt] = useState('sandiVendorA123');
@@ -85,6 +93,10 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
 
   // Search in catalog
   const [catalogSearch, setCatalogSearch] = useState('');
+
+  // Contract attach (shown when the connected contract has no tenders)
+  const [attachInput, setAttachInput] = useState('');
+  const [attachError, setAttachError] = useState(null);
 
   // Live hasher effect
   useEffect(() => {
@@ -124,6 +136,19 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
       setHasherHarga('850000000');
       setHasherSalt('sandiRahasiaB999');
       setCommitVendorName('PT Karya Nusantara');
+    }
+  };
+
+  // Attach an existing contract address from the empty catalog
+  const handleAttachContract = async (e) => {
+    e.preventDefault();
+    setAttachError(null);
+    try {
+      if (!attachInput.trim()) throw new Error('Masukkan alamat kontrak terlebih dahulu.');
+      await attachContract(attachInput.trim());
+      setAttachInput('');
+    } catch (err) {
+      setAttachError(err.reason || err.message || 'Gagal menghubungkan kontrak.');
     }
   };
 
@@ -254,205 +279,199 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
            String(t.id).includes(catalogSearch);
   });
 
+  const isFlowTab = activeSubTab === 'hasher' || activeSubTab === 'commit' || activeSubTab === 'reveal';
+
+  const vendorTabs = [
+    { id: 'katalog', label: 'Katalog Lelang', icon: Search },
+    {
+      id: 'hasher',
+      label: '1. Kalkulator Hash',
+      icon: Sparkles,
+      disabled: !selectedTenderId,
+      title: !selectedTenderId
+        ? 'Pilih salah satu paket pengadaan di Katalog terlebih dahulu'
+        : 'Hitung hash keccak256(harga, kata sandi) secara lokal'
+    },
+    {
+      id: 'commit',
+      label: '2. Kirim Penawaran',
+      icon: Lock,
+      disabled: !selectedTenderId,
+      title: !selectedTenderId
+        ? 'Pilih salah satu paket pengadaan di Katalog terlebih dahulu'
+        : 'Kirim komitmen penawaran terkunci (Fase Commit)'
+    },
+    {
+      id: 'reveal',
+      label: '3. Buka Penawaran',
+      icon: Unlock,
+      disabled: !selectedTenderId,
+      title: !selectedTenderId
+        ? 'Pilih salah satu paket pengadaan di Katalog terlebih dahulu'
+        : 'Buka harga penawaran (Fase Reveal)'
+    },
+    { id: 'vault', label: `Brankas Lokal (${vaultBids.length})`, icon: Archive },
+    { id: 'anticheat', label: 'Uji Anti-Curang', icon: AlertOctagon }
+  ];
+
   return (
     <div className="space-y-6">
-      {/* Sub Tabs Navigation */}
-      <div className="flex border-b border-slate-200 gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar text-xs sm:text-sm font-medium pb-0.5">
-        <button
-          onClick={() => setActiveSubTab('katalog')}
-          className={`pb-2.5 pt-1 px-3 sm:px-3.5 border-b-2 flex items-center gap-2 transition whitespace-nowrap shrink-0 ${
-            activeSubTab === 'katalog' 
-              ? 'border-slate-900 text-slate-900 font-bold' 
-              : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          <Search className="w-4 h-4 text-slate-900" />
-          <span>Katalog Lelang Pengadaan</span>
-        </button>
+      {/* Compact header: page title + active vendor identity + on-chain sync */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-lg font-bold tracking-tight text-slate-900">
+            Katalog &amp; Alur Penawaran Vendor
+          </h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Susun harga rahasia, setor komitmen terkunci, lalu buka penawaran secara adil (<em>sealed-bid</em>).
+          </p>
+        </div>
 
-        <button
-          onClick={() => selectedTenderId ? setActiveSubTab('hasher') : null}
-          disabled={!selectedTenderId}
-          title={!selectedTenderId ? "Pilih salah satu paket pengadaan di Katalog terlebih dahulu agar alur tidak berantakan" : "1. Kalkulator Hash Keccak-256"}
-          className={`pb-2.5 pt-1 px-3 sm:px-3.5 border-b-2 flex items-center gap-1.5 transition whitespace-nowrap shrink-0 ${
-            !selectedTenderId 
-              ? 'opacity-40 cursor-not-allowed border-transparent text-slate-400'
-              : activeSubTab === 'hasher' 
-                ? 'border-slate-900 text-slate-900 font-bold' 
-                : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          <Sparkles className="w-4 h-4 text-slate-900" />
-          <span>1. Kalkulator Hash Keccak-256</span>
-          {!selectedTenderId && <Lock className="w-3.5 h-3.5 text-slate-400 ml-0.5" />}
-        </button>
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <div className="inline-flex items-center gap-1.5 rounded-control bg-slate-50 border border-slate-200 px-3 py-1.5 text-2xs">
+            <Briefcase className="w-3.5 h-3.5 text-brand-600" />
+            <span className="font-medium text-slate-800">{currentAccount.name}</span>
+            <span className="font-mono text-slate-400">{truncateAddress(currentAccount.address)}</span>
+          </div>
 
-        <button
-          onClick={() => selectedTenderId ? setActiveSubTab('commit') : null}
-          disabled={!selectedTenderId}
-          title={!selectedTenderId ? "Pilih salah satu paket pengadaan di Katalog terlebih dahulu agar alur tidak berantakan" : "2. Kirim Penawaran Terkunci (Fase Commit)"}
-          className={`pb-2.5 pt-1 px-3 sm:px-3.5 border-b-2 flex items-center gap-1.5 transition whitespace-nowrap shrink-0 ${
-            !selectedTenderId 
-              ? 'opacity-40 cursor-not-allowed border-transparent text-slate-400'
-              : activeSubTab === 'commit' 
-                ? 'border-slate-900 text-slate-900 font-bold' 
-                : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          <Lock className="w-4 h-4 text-slate-900" />
-          <span>2. Kirim Penawaran Terkunci (Fase Commit)</span>
-          {!selectedTenderId && <Lock className="w-3.5 h-3.5 text-slate-400 ml-0.5" />}
-        </button>
-
-        <button
-          onClick={() => selectedTenderId ? setActiveSubTab('reveal') : null}
-          disabled={!selectedTenderId}
-          title={!selectedTenderId ? "Pilih salah satu paket pengadaan di Katalog terlebih dahulu agar alur tidak berantakan" : "3. Buka Penawaran (Fase Reveal)"}
-          className={`pb-2.5 pt-1 px-3 sm:px-3.5 border-b-2 flex items-center gap-1.5 transition whitespace-nowrap shrink-0 ${
-            !selectedTenderId 
-              ? 'opacity-40 cursor-not-allowed border-transparent text-slate-400'
-              : activeSubTab === 'reveal' 
-                ? 'border-slate-900 text-slate-900 font-bold' 
-                : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          <Unlock className="w-4 h-4 text-slate-900" />
-          <span>3. Buka Penawaran (Fase Reveal)</span>
-          {!selectedTenderId && <Lock className="w-3.5 h-3.5 text-slate-400 ml-0.5" />}
-        </button>
-
-        <button
-          onClick={() => setActiveSubTab('vault')}
-          className={`pb-2.5 pt-1 px-3 sm:px-3.5 border-b-2 flex items-center gap-2 transition whitespace-nowrap shrink-0 ${
-            activeSubTab === 'vault' 
-              ? 'border-slate-900 text-slate-900 font-bold' 
-              : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          <Archive className="w-4 h-4 text-slate-900" />
-          <span>Brankas Rahasia Lokal ({vaultBids.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveSubTab('anticheat')}
-          className={`pb-2.5 pt-1 px-3 sm:px-3.5 border-b-2 flex items-center gap-2 transition whitespace-nowrap shrink-0 ${
-            activeSubTab === 'anticheat' 
-              ? 'border-slate-900 text-slate-900 font-bold' 
-              : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          <AlertOctagon className="w-4 h-4 text-slate-900" />
-          <span>Uji Coba Anti-Curang</span>
-        </button>
+          {mode === 'web3' && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => syncContractData()}
+              className="gap-1.5"
+              title="Perbarui data lelang langsung dari blockchain"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Sinkronkan</span>
+            </Button>
+          )}
+        </div>
       </div>
+
+      {/* Sub Tabs Navigation */}
+      <Tabs
+        items={vendorTabs}
+        value={activeSubTab}
+        onChange={setActiveSubTab}
+        variant="underline"
+      />
 
       {/* Selected Tender Context Banner */}
       {selectedTender && (
-        <div className="bg-gradient-to-r from-blue-50 via-indigo-50/40 to-slate-50 border border-blue-200/90 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs">
-          <div className="flex items-center gap-2.5">
-            <span className="w-7 h-7 rounded-lg bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
+        <Card className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="w-8 h-8 rounded-control bg-brand-900 text-white font-mono font-bold text-xs flex items-center justify-center shrink-0">
               #{selectedTender.id}
             </span>
-            <div>
-              <div className="text-[10px] font-bold text-blue-800 uppercase tracking-wider flex items-center gap-1.5">
-                <span>Paket Pengadaan Terpilih:</span>
+            <div className="min-w-0">
+              <div className="text-2xs font-semibold text-slate-400 uppercase tracking-wider">
+                Paket Pengadaan Terpilih
               </div>
-              <div className="font-bold text-slate-900 text-sm mt-0.5">
+              <div className="font-bold text-slate-900 text-sm mt-0.5 truncate">
                 {selectedTender.namaProyek}
               </div>
-              <div className="text-[11px] text-slate-500 mt-0.5 flex flex-wrap items-center gap-2">
+              <div className="text-2xs text-slate-500 mt-0.5 flex flex-wrap items-center gap-2">
                 <span>Satuan Kerja: <strong className="text-slate-700">{selectedTender.satuanKerja}</strong></span>
-                <span>•</span>
-                <span>Pagu Anggaran: <strong className="text-slate-800">{formatIDR(selectedTender.paguAnggaranIDR)}</strong></span>
+                <span className="text-slate-300">•</span>
+                <span>Pagu: <strong className="text-slate-700">{formatIDR(selectedTender.paguAnggaranIDR)}</strong></span>
               </div>
             </div>
           </div>
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={() => setActiveSubTab('katalog')}
-            className="px-3 py-1.5 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-medium rounded-lg text-xs shadow-xs transition self-start sm:self-center shrink-0 flex items-center gap-1.5"
+            className="gap-1.5 shrink-0 self-start sm:self-center"
             title="Kembali ke katalog untuk memilih paket pengadaan lain"
           >
-            <Search className="w-3.5 h-3.5 text-slate-500" />
-            <span>Pilih Pengadaan Lain di Katalog</span>
-          </button>
-        </div>
+            <Search className="w-3.5 h-3.5" />
+            <span>Pilih Pengadaan Lain</span>
+          </Button>
+        </Card>
       )}
 
       {/* Guard jika user belum memilih paket tender tapi berada di menu alur 1, 2, atau 3 */}
-      {!selectedTenderId && (activeSubTab === 'hasher' || activeSubTab === 'commit' || activeSubTab === 'reveal') && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-8 sm:p-12 text-center space-y-4 shadow-sm">
-          <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
-            <Lock className="w-7 h-7 text-amber-500" />
-          </div>
-          <div className="max-w-md mx-auto space-y-1.5">
-            <h3 className="font-bold text-slate-900 text-base">Pilih Paket Pengadaan Terlebih Dahulu</h3>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Menu 1. Kalkulator Hash, 2. Kirim Penawaran Terkunci, dan 3. Buka Penawaran memerlukan paket lelang yang dipilih dari katalog agar proses kriptografi Keccak-256 dan pencatatan smart contract terarah.
-            </p>
-          </div>
-          <div className="pt-2">
-            <button
-              type="button"
-              onClick={() => setActiveSubTab('katalog')}
-              className="btn-primary text-xs bg-blue-600 hover:bg-blue-700 inline-flex items-center gap-1.5"
-            >
+      {!selectedTenderId && isFlowTab && (
+        <EmptyState
+          icon={Lock}
+          title="Pilih Paket Pengadaan Terlebih Dahulu"
+          description="Menu 1. Kalkulator Hash, 2. Kirim Penawaran, dan 3. Buka Penawaran memerlukan paket lelang yang dipilih dari katalog agar proses kriptografi Keccak-256 dan pencatatan smart contract terarah."
+          action={
+            <Button onClick={() => setActiveSubTab('katalog')} className="gap-1.5">
               <Search className="w-3.5 h-3.5" />
-              <span>Buka Katalog Lelang Pengadaan</span>
-            </button>
-          </div>
-        </div>
+              <span>Buka Katalog Lelang</span>
+            </Button>
+          }
+        />
       )}
 
       {/* TAB 0: KATALOG LELANG UNTUK VENDOR */}
       {activeSubTab === 'katalog' && (
         <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200">
+          <Card className="p-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
             <div className="relative w-full sm:w-96">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
               <input
                 type="text"
                 value={catalogSearch}
                 onChange={(e) => setCatalogSearch(e.target.value)}
                 placeholder="Cari lelang terbuka..."
-                className="w-full pl-9 pr-4 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-9 pr-4 py-2 text-xs bg-white border border-slate-300 rounded-control text-slate-900 placeholder:text-slate-400 transition focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
               />
             </div>
-            <div className="text-xs text-slate-500">
-              Daftar lelang resmi pemerintah yang sedang berlangsung di Smart Contract
+            <div className="text-2xs text-slate-500">
+              Daftar lelang resmi pemerintah yang sedang berlangsung di smart contract
             </div>
-          </div>
+          </Card>
 
           {catalogTenders.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-slate-200 p-8 sm:p-12 text-center space-y-4 shadow-sm">
-              <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto">
-                <Briefcase className="w-7 h-7 text-blue-500" />
-              </div>
-              <div className="max-w-md mx-auto space-y-1.5">
-                <h3 className="font-bold text-slate-900 text-base">Belum Ada Lelang Terbuka di Kontrak Ini</h3>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  Tidak ditemukan paket tender pada Smart Contract yang sedang terhubung: <code className="font-mono text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded">{truncateAddress(deployedContractAddress)}</code>
-                </p>
-              </div>
-              <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 max-w-lg mx-auto text-left space-y-2">
-                <div className="font-semibold flex items-center gap-1.5 text-amber-950">
-                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                  <span>Tips Menghubungkan Kontrak Lelang Pemerintah:</span>
+            <EmptyState
+              icon={Briefcase}
+              title="Belum Ada Lelang Terbuka di Kontrak Ini"
+              description={
+                <>
+                  Tidak ditemukan paket tender pada Smart Contract yang terhubung:{' '}
+                  <code className="font-mono text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded">
+                    {truncateAddress(deployedContractAddress)}
+                  </code>
+                  . Pastikan akun vendor terhubung ke alamat kontrak yang sama dengan Panitia Pemerintah.
+                </>
+              }
+              action={
+                <div className="w-full max-w-lg space-y-3 text-left">
+                  {mode === 'web3' && (
+                    <form onSubmit={handleAttachContract} className="flex flex-col sm:flex-row gap-2">
+                      <input
+                        type="text"
+                        value={attachInput}
+                        onChange={(e) => setAttachInput(e.target.value)}
+                        placeholder="Tempel alamat kontrak pemerintah (0x...)"
+                        className="form-input flex-1 font-mono text-xs"
+                      />
+                      <Button type="submit" size="sm" className="gap-1.5 shrink-0">
+                        <LinkIcon className="w-3.5 h-3.5" />
+                        <span>Hubungkan</span>
+                      </Button>
+                    </form>
+                  )}
+                  {attachError && (
+                    <p className="text-2xs text-status-danger-text">{attachError}</p>
+                  )}
+                  <div className="flex justify-center pt-1">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => syncContractData()}
+                      className="gap-1.5"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" />
+                      <span>Sinkronkan Ulang</span>
+                    </Button>
+                  </div>
                 </div>
-                <p className="text-[11px] text-amber-800 leading-relaxed">
-                  Pastikan akun vendor terhubung ke <strong>alamat Smart Contract yang sama</strong> dengan yang digunakan oleh Panitia Pemerintah. Jika Panitia mendeply lelang di kontrak lain, salin alamat kontrak tersebut, klik tombol <strong>"Ganti Kontrak"</strong> di bilah atas, lalu tempelkan dan klik <strong>"Hubungkan"</strong>.
-                </p>
-                <div className="pt-1 flex justify-end">
-                  <button
-                    type="button"
-                    onClick={() => syncContractData()}
-                    className="px-3 py-1 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold shadow-sm transition"
-                  >
-                    Sinkronkan Ulang
-                  </button>
-                </div>
-              </div>
-            </div>
+              }
+            />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {catalogTenders.map(t => {
@@ -461,54 +480,60 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
               const revealLeft = Math.max(0, t.batasWaktuReveal - currentTime);
               const myBid = t.penawaran?.[currentAccount.address.toLowerCase()] || t.penawaran?.[currentAccount.address];
 
-              const isWinner = t.pemenang && 
+              const isWinner = t.pemenang &&
                 currentAccount.address &&
-                t.pemenang.toLowerCase() === currentAccount.address.toLowerCase() && 
+                t.pemenang.toLowerCase() === currentAccount.address.toLowerCase() &&
                 t.penawaranTerendahIDR <= t.paguAnggaranIDR &&
                 t.pemenang !== '0x0000000000000000000000000000000000000000';
 
-              const hasWinner = t.pemenang && 
-                t.pemenang !== '0x0000000000000000000000000000000000000000' && 
+              const hasWinner = t.pemenang &&
+                t.pemenang !== '0x0000000000000000000000000000000000000000' &&
                 t.penawaranTerendahIDR <= t.paguAnggaranIDR;
 
               return (
-                <div key={t.id} className={`bg-white rounded-xl border transition shadow-sm flex flex-col justify-between overflow-hidden ${isWinner ? 'border-emerald-400 ring-2 ring-emerald-500/20' : 'border-slate-200/90 hover:border-slate-300'}`}>
+                <Card
+                  key={t.id}
+                  className={`flex flex-col justify-between overflow-hidden transition ${
+                    isWinner
+                      ? 'border-status-done-border ring-1 ring-status-done-border'
+                      : 'hover:border-slate-300'
+                  }`}
+                >
                   <div className="p-5 space-y-3">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-mono text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                      <span className="font-mono text-2xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
                         #{t.id}
                       </span>
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${st.badge} flex items-center gap-1`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${st.dot}`}></span>
-                        <span>{st.label}</span>
-                      </span>
+                      <StatusPill tone={STATUS_TONE[st.stage] || 'neutral'}>
+                        {st.label}
+                      </StatusPill>
                     </div>
 
                     <div>
-                      <h3 
+                      <h3
                         onClick={() => onSelectTender && onSelectTender(t)}
-                        className={`font-bold text-slate-900 text-sm leading-snug line-clamp-2 ${onSelectTender ? 'cursor-pointer hover:text-blue-600 transition' : ''}`}
+                        className={`font-bold text-slate-900 text-sm leading-snug line-clamp-2 ${onSelectTender ? 'cursor-pointer hover:text-brand-700 transition' : ''}`}
                         title="Klik untuk membuka rincian tender & dokumen lelang"
                       >
                         {t.namaProyek}
                       </h3>
-                      <p className="text-[11px] text-slate-500 mt-1 flex items-center gap-1">
+                      <p className="text-2xs text-slate-500 mt-1 flex items-center gap-1">
                         <Building className="w-3 h-3 text-slate-400 shrink-0" />
                         <span className="truncate">{t.satuanKerja}</span>
                       </p>
                     </div>
 
                     {t.ipfsDokumenKAK && (
-                      <div className="flex items-center justify-between text-[11px] text-slate-500 bg-blue-50/60 px-2.5 py-1.5 rounded-lg border border-blue-100/80">
+                      <div className="flex items-center justify-between gap-2 text-2xs text-slate-500 bg-slate-50 px-2.5 py-1.5 rounded-control border border-slate-100">
                         <span className="flex items-center gap-1.5 font-medium text-slate-700">
-                          <FileText className="w-3.5 h-3.5 text-blue-600" />
-                          Dokumen KAK Pemerintah:
+                          <FileText className="w-3.5 h-3.5 text-brand-600" />
+                          Dokumen KAK:
                         </span>
                         <a
                           href={formatIpfsGatewayUrl(t.ipfsDokumenKAK)}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-blue-600 hover:underline font-mono flex items-center gap-1 font-semibold text-[11px]"
+                          className="text-brand-700 hover:text-brand-900 font-mono flex items-center gap-1 font-semibold"
                           onClick={(e) => e.stopPropagation()}
                           title={`Buka Dokumen KAK: ${t.ipfsDokumenKAK}`}
                         >
@@ -518,54 +543,56 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
                       </div>
                     )}
 
-                    <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-100 space-y-1.5 text-xs">
-                      <div className="flex justify-between items-center text-slate-500">
+                    <div className="bg-slate-50 p-2.5 rounded-control border border-slate-100 space-y-1.5 text-xs">
+                      <div className="flex justify-between items-center gap-3 text-slate-500">
                         <span>Pagu Anggaran:</span>
-                        <span className="font-bold text-slate-900 tabular-nums">{formatIDR(t.paguAnggaranIDR)}</span>
+                        <span className="font-bold text-slate-900 tabular-nums text-right">{formatIDR(t.paguAnggaranIDR)}</span>
                       </div>
-                      <div className="flex justify-between items-center text-slate-500">
+                      <div className="flex justify-between items-center gap-3 text-slate-500">
                         <span>Status Anda:</span>
-                        {isWinner ? (
-                          <span className="font-bold text-emerald-700 flex items-center gap-1 bg-emerald-100 px-1.5 py-0.5 rounded">
-                            <Trophy className="w-3 h-3 text-amber-500" />
-                            MENANG TENDER ({formatIDR(t.penawaranTerendahIDR)})
-                          </span>
-                        ) : st.stage === 'COMPLETED' ? (
-                          myBid ? (
-                            myBid.sudahReveal ? (
-                              <span className="font-medium text-slate-600">Kalah (Pemenang: {truncateAddress(t.pemenang)})</span>
+                        <span className="text-right">
+                          {isWinner ? (
+                            <span className="font-bold text-status-done-text inline-flex items-center gap-1 bg-status-done-bg border border-status-done-border px-1.5 py-0.5 rounded">
+                              <Trophy className="w-3 h-3 text-status-reveal-dot" />
+                              MENANG ({formatIDR(t.penawaranTerendahIDR)})
+                            </span>
+                          ) : st.stage === 'COMPLETED' ? (
+                            myBid ? (
+                              myBid.sudahReveal ? (
+                                <span className="font-medium text-slate-600">Kalah (Pemenang: {truncateAddress(t.pemenang)})</span>
+                              ) : (
+                                <span className="font-semibold text-status-danger-text">Gugur (Tidak Reveal)</span>
+                              )
                             ) : (
-                              <span className="font-semibold text-rose-600">Gugur (Tidak Reveal)</span>
+                              <span className="text-slate-400">Tidak Berpartisipasi</span>
+                            )
+                          ) : myBid ? (
+                            myBid.sudahReveal ? (
+                              <span className="font-semibold text-status-done-text">Sudah Buka ({formatIDR(myBid.hargaTerbukaIDR)})</span>
+                            ) : (
+                              <span className="font-semibold text-status-commit-text" title="Penawaran rahasia terdaftar di blockchain, menunggu fase reveal">
+                                Terkunci (Belum Reveal)
+                              </span>
                             )
                           ) : (
-                            <span className="text-slate-400">Tidak Berpartisipasi</span>
-                          )
-                        ) : myBid ? (
-                          myBid.sudahReveal ? (
-                            <span className="font-semibold text-emerald-700">Sudah Buka ({formatIDR(myBid.hargaTerbukaIDR)})</span>
-                          ) : (
-                            <span className="font-semibold text-sky-700" title="Penawaran rahasia terdaftar di blockchain, menunggu fase reveal">
-                              Terkunci (Belum Reveal)
-                            </span>
-                          )
-                        ) : (
-                          <span className="text-slate-400">Belum Berpartisipasi</span>
-                        )}
+                            <span className="text-slate-400">Belum Berpartisipasi</span>
+                          )}
+                        </span>
                       </div>
                     </div>
 
-                    <div className="text-[11px] text-slate-500 flex items-center justify-between">
+                    <div className="text-2xs text-slate-500 flex items-center justify-between gap-2">
                       {st.stage === 'COMMIT' && (
-                        <span className="text-sky-700 font-mono">Commit ditutup dlm: {formatDuration(commitLeft)}</span>
+                        <span className="text-status-commit-text font-mono">Commit ditutup dlm: {formatDuration(commitLeft)}</span>
                       )}
                       {st.stage === 'REVEAL' && (
-                        <span className="text-amber-700 font-mono">Reveal ditutup dlm: {formatDuration(revealLeft)}</span>
+                        <span className="text-status-reveal-text font-mono">Reveal ditutup dlm: {formatDuration(revealLeft)}</span>
                       )}
                       {st.stage === 'COMPLETED' && (
                         hasWinner ? (
-                          <span className="text-emerald-700 font-semibold">Tender Selesai (Ada Pemenang)</span>
+                          <span className="text-status-done-text font-semibold">Tender Selesai (Ada Pemenang)</span>
                         ) : (
-                          <span className="text-amber-700 font-medium">Tender Selesai (Tanpa Pemenang)</span>
+                          <span className="text-status-reveal-text font-medium">Tender Selesai (Tanpa Pemenang)</span>
                         )
                       )}
                     </div>
@@ -574,68 +601,72 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
                   <div className="p-3 bg-slate-50 border-t border-slate-100 space-y-2">
                     <div className="flex items-center justify-between gap-2">
                       {st.stage === 'COMMIT' && (
-                        <button
+                        <Button
                           onClick={() => handleSelectTenderForFlow(t, 'hasher')}
-                          className="w-full py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold shadow-sm transition flex items-center justify-center gap-1.5"
+                          className="w-full gap-1.5"
+                          size="sm"
                           title="Pilih lelang ini dan mulai proses pengiriman penawaran dari Langkah 1 (Kalkulator Hash)"
                         >
                           <Lock className="w-3.5 h-3.5" />
                           <span>Kirim Penawaran Tersegel</span>
-                        </button>
+                        </Button>
                       )}
 
                       {st.stage === 'REVEAL' && (
-                        <button
+                        <Button
                           onClick={() => handleSelectTenderForFlow(t, 'reveal')}
-                          className="w-full py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold shadow-sm transition flex items-center justify-center gap-1.5"
+                          className="w-full gap-1.5"
+                          size="sm"
                           title="Pilih lelang ini dan buka harga penawaran di Fase Reveal"
                         >
                           <Unlock className="w-3.5 h-3.5" />
                           <span>Buka Penawaran (Reveal)</span>
-                        </button>
+                        </Button>
                       )}
 
                       {st.stage === 'COMPLETED' && (
                         isWinner ? (
-                          <div className="w-full bg-emerald-500 text-white rounded-lg py-2 text-center text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm">
-                            <Trophy className="w-4 h-4 text-amber-300" />
+                          <div className="w-full bg-status-done-bg border border-status-done-border text-status-done-text rounded-control py-2 text-center text-2xs font-bold flex items-center justify-center gap-1.5">
+                            <Trophy className="w-4 h-4 text-status-reveal-dot" />
                             <span>SELAMAT! Anda Ditetapkan Sebagai Pemenang</span>
                           </div>
                         ) : myBid && !myBid.sudahReveal ? (
-                          <div className="w-full bg-rose-50 border border-rose-200 text-rose-800 rounded-lg py-1.5 px-2 text-center text-[11px] font-medium">
-                            ⚠️ Penawaran Gugur: Tidak Dibuka pada Fase Reveal
+                          <div className="w-full bg-status-danger-bg border border-status-danger-border text-status-danger-text rounded-control py-1.5 px-2 text-center text-2xs font-medium flex items-center justify-center gap-1.5">
+                            <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                            <span>Penawaran Gugur: Tidak Dibuka pada Fase Reveal</span>
                           </div>
                         ) : !hasWinner ? (
-                          <div className="w-full bg-amber-50 border border-amber-200 text-amber-900 rounded-lg py-1.5 px-2 text-center text-[11px] font-medium">
+                          <div className="w-full bg-status-reveal-bg border border-status-reveal-border text-status-reveal-text rounded-control py-1.5 px-2 text-center text-2xs font-medium">
                             Tender Selesai Tanpa Pemenang Sah (Gugur)
                           </div>
                         ) : (
-                          <div className="w-full text-center text-xs text-slate-500 py-1 font-medium">
+                          <div className="w-full text-center text-2xs text-slate-500 py-1 font-medium">
                             Pengadaan Resmi Selesai
                           </div>
                         )
                       )}
 
                       {st.stage === 'AWAITING_LOCK' && (
-                        <div className="w-full text-center text-xs text-slate-500 py-1 font-medium">
+                        <div className="w-full text-center text-2xs text-slate-500 py-1 font-medium">
                           Menunggu Pengesahan Panitia
                         </div>
                       )}
                     </div>
 
                     {onSelectTender && (
-                      <button
-                        type="button"
+                      <Button
+                        variant="secondary"
+                        size="sm"
                         onClick={() => onSelectTender(t)}
-                        className="w-full py-1.5 px-3 bg-white hover:bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200 rounded-lg text-xs font-medium shadow-xs transition flex items-center justify-center gap-1.5"
+                        className="w-full gap-1.5"
                         title="Lihat seluruh dokumen KAK, proposal teknis vendor, dan audit status di blockchain"
                       >
-                        <FileText className="w-3.5 h-3.5 text-slate-500" />
-                        <span>Detail Lelang & Audit Dokumen</span>
-                      </button>
+                        <FileText className="w-3.5 h-3.5" />
+                        <span>Detail Lelang &amp; Audit Dokumen</span>
+                      </Button>
                     )}
                   </div>
-                </div>
+                </Card>
               );
             })}
           </div>
@@ -645,184 +676,182 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
 
       {/* TAB 1: HASHER CALCULATOR */}
       {selectedTenderId && activeSubTab === 'hasher' && (
-        <div className="mini-card p-6 space-y-6">
+        <Card className="p-6 space-y-6">
           <div className="border-b border-slate-100 pb-4">
             <div className="flex items-center gap-2 mb-1">
-              <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-bold uppercase tracking-wider">
+              <span className="px-2 py-0.5 rounded bg-status-reveal-bg text-status-reveal-text border border-status-reveal-border text-2xs font-bold uppercase tracking-wider">
                 Langkah 1 dari 2
               </span>
-              <span className="text-slate-400 text-xs">•</span>
-              <span className="text-xs text-slate-500 font-medium">Penyusunan Harga Rahasia (Off-Chain)</span>
+              <span className="text-slate-300">•</span>
+              <span className="text-2xs text-slate-500 font-medium">Penyusunan Harga Rahasia (Off-Chain)</span>
             </div>
             <h3 className="font-semibold text-slate-900 text-base">
               1. Kalkulator Hash Keccak-256 (Sealed-Bid)
             </h3>
             <p className="text-xs text-slate-500 mt-1">
-              Fungsi ini menghitung <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-800">keccak256(abi.encodePacked(HargaIDR, KataSandi))</code> secara lokal pada peramban Anda. 
+              Fungsi ini menghitung <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-800">keccak256(abi.encodePacked(HargaIDR, KataSandi))</code> secara lokal pada peramban Anda.
               Nominal asli tidak pernah dikirim ke internet atau blockchain pada tahap ini.
             </p>
           </div>
 
           {/* Targeted Tender Info Banner */}
           {selectedCommitTender && (
-            <div className="p-4 bg-gradient-to-r from-amber-50/90 via-orange-50/50 to-blue-50/80 border border-amber-200/90 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <div className="text-[10px] font-bold text-amber-800 uppercase tracking-wider">
-                  Target Paket Pengadaan:
+            <div className="p-4 bg-slate-50 border border-slate-200 rounded-control flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-2xs font-semibold text-slate-400 uppercase tracking-wider">
+                  Target Paket Pengadaan
                 </div>
-                <h4 className="font-bold text-slate-900 text-sm mt-0.5">
+                <h4 className="font-bold text-slate-900 text-sm mt-0.5 truncate">
                   #{selectedCommitTender.id} - {selectedCommitTender.namaProyek}
                 </h4>
                 <div className="text-xs text-slate-600 mt-1 flex flex-wrap items-center gap-2">
-                  <span>Pagu Anggaran Pemerintah: <strong className="text-slate-900">{formatIDR(selectedCommitTender.paguAnggaranIDR)}</strong></span>
-                  <span>•</span>
-                  <span>Satuan Kerja: <strong>{selectedCommitTender.satuanKerja}</strong></span>
+                  <span>Pagu Anggaran: <strong className="text-slate-900">{formatIDR(selectedCommitTender.paguAnggaranIDR)}</strong></span>
+                  <span className="text-slate-300">•</span>
+                  <span>Satuan Kerja: <strong className="text-slate-700">{selectedCommitTender.satuanKerja}</strong></span>
                 </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-1.5 self-start sm:self-center">
-                <span className="text-[10px] text-slate-500 font-medium mr-1">Rekomendasi Tawar:</span>
-                <button
-                  type="button"
+                <span className="text-2xs text-slate-500 font-medium mr-1">Rekomendasi Tawar:</span>
+                <Button
+                  variant="secondary"
+                  size="sm"
                   onClick={() => setHasherHarga(String(Math.floor(selectedCommitTender.paguAnggaranIDR * 0.9)))}
-                  className="px-2 py-1 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded text-[11px] font-semibold transition"
+                  className="h-7 px-2 text-2xs"
                 >
                   90% Pagu
-                </button>
-                <button
-                  type="button"
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
                   onClick={() => setHasherHarga(String(Math.floor(selectedCommitTender.paguAnggaranIDR * 0.85)))}
-                  className="px-2 py-1 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded text-[11px] font-semibold transition"
+                  className="h-7 px-2 text-2xs"
                 >
                   85% Pagu
-                </button>
+                </Button>
               </div>
             </div>
           )}
 
-          <div className="flex items-center gap-2 text-xs">
+          <div className="flex flex-wrap items-center gap-2 text-xs">
             <span className="text-slate-500 font-medium">Preset Rekanan Uji Coba:</span>
-            <button
-              onClick={() => loadPreset('vendorA')}
-              className="px-2.5 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100 font-medium transition"
-            >
+            <Button variant="secondary" size="sm" onClick={() => loadPreset('vendorA')} className="h-7 px-2 text-2xs">
               Vendor A (Rp 920 Juta)
-            </button>
-            <button
-              onClick={() => loadPreset('vendorB')}
-              className="px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-medium transition"
-            >
+            </Button>
+            <Button variant="secondary" size="sm" onClick={() => loadPreset('vendorB')} className="h-7 px-2 text-2xs">
               Vendor B (Rp 850 Juta)
-            </button>
+            </Button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Harga Penawaran Riil (Rupiah - IDR)
-              </label>
+            <Field
+              label="Harga Penawaran Riil (Rupiah - IDR)"
+              htmlFor="hasher-harga"
+              hint={
+                <span className="flex items-center justify-between gap-2">
+                  <span>Terbaca: <strong className="text-slate-800">{formatIDR(hasherHarga)}</strong></span>
+                  {selectedCommitTender && hasherHarga && (
+                    Number(hasherHarga) > selectedCommitTender.paguAnggaranIDR ? (
+                      <span className="text-status-danger-text font-semibold flex items-center gap-1">
+                        <AlertTriangle className="w-3 h-3" /> Melebihi Pagu!
+                      </span>
+                    ) : (
+                      <span className="text-status-done-text font-semibold flex items-center gap-1">
+                        <Check className="w-3 h-3" /> Di Bawah Pagu
+                      </span>
+                    )
+                  )}
+                </span>
+              }
+            >
               <input
+                id="hasher-harga"
                 type="text"
                 value={hasherHarga}
                 onChange={(e) => setHasherHarga(e.target.value.replace(/[^0-9]/g, ''))}
                 placeholder="Contoh: 920000000"
-                className="form-input text-sm font-mono"
+                className="form-input font-mono"
               />
-              <div className="flex items-center justify-between text-[11px] mt-1.5">
-                <span className="text-slate-500">
-                  Terbaca: <strong className="text-slate-800">{formatIDR(hasherHarga)}</strong>
-                </span>
-                {selectedCommitTender && hasherHarga && (
-                  Number(hasherHarga) > selectedCommitTender.paguAnggaranIDR ? (
-                    <span className="text-rose-600 font-semibold flex items-center gap-1">
-                      <AlertTriangle className="w-3 h-3" /> Melebihi Pagu!
-                    </span>
-                  ) : (
-                    <span className="text-emerald-600 font-semibold flex items-center gap-1">
-                      <Check className="w-3 h-3" /> Di Bawah Pagu
-                    </span>
-                  )
-                )}
-              </div>
-            </div>
+            </Field>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Kata Sandi Rahasia (*Salt*)
-              </label>
+            <Field
+              label="Kata Sandi Rahasia (Salt)"
+              htmlFor="hasher-salt"
+              hint="Simpan kata sandi ini! Anda wajib memasukkannya saat Fase Reveal."
+            >
               <input
+                id="hasher-salt"
                 type="text"
                 value={hasherSalt}
                 onChange={(e) => setHasherSalt(e.target.value)}
                 placeholder="Contoh: sandiVendorA123"
-                className="form-input text-sm font-mono"
+                className="form-input font-mono"
               />
-              <span className="text-[11px] text-slate-500 mt-1 block">
-                Simpan kata sandi ini! Anda wajib memasukkannya saat Fase Reveal.
-              </span>
-            </div>
+            </Field>
           </div>
 
-          <div className="bg-slate-900 rounded-xl p-4 text-white space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-400 font-medium flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                Hasil Hash Terkunci (bytes32):
+          <div className="rounded-card bg-slate-950 border border-slate-800 p-4 space-y-2">
+            <div className="flex items-center justify-between gap-2 text-2xs">
+              <span className="text-slate-300 font-medium flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-status-done-dot" />
+                Hasil Hash Terkunci (bytes32)
               </span>
               <button
                 onClick={handleCopyHash}
-                className="flex items-center gap-1 text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1 rounded transition"
+                className="flex items-center gap-1 text-2xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1 rounded transition"
               >
-                {copiedHash ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                {copiedHash ? "Tersalin!" : "Salin Hash"}
+                {copiedHash ? <Check className="w-3 h-3 text-status-done-dot" /> : <Copy className="w-3 h-3" />}
+                {copiedHash ? 'Tersalin!' : 'Salin Hash'}
               </button>
             </div>
 
-            <div className="bg-slate-950 p-3 rounded-lg border border-slate-800 font-mono text-xs text-amber-300 break-all select-all">
-              {hasherResult || "— (Masukkan harga dan kata sandi di atas)"}
+            <div className="bg-black/40 p-3 rounded-control border border-slate-800 font-mono text-xs text-status-reveal-dot break-all select-all">
+              {hasherResult || '— (Masukkan harga dan kata sandi di atas)'}
             </div>
 
-            <p className="text-[11px] text-slate-400">
-              🔒 Hanya kode acak 64 karakter di atas yang akan tercatat di blockchain saat Anda mendaftar.
+            <p className="text-2xs text-slate-400 flex items-start gap-1.5">
+              <Lock className="w-3 h-3 mt-0.5 shrink-0" />
+              <span>Hanya kode acak 64 karakter di atas yang akan tercatat di blockchain saat Anda mendaftar.</span>
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100">
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => setActiveSubTab('katalog')}
-              className="text-xs text-slate-500 hover:text-slate-800 flex items-center gap-1 font-medium order-2 sm:order-1"
+              className="gap-1.5 order-2 sm:order-1"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Kembali ke Katalog Lelang</span>
-            </button>
-            <button
-              type="button"
+              <span>Kembali ke Katalog</span>
+            </Button>
+            <Button
               onClick={() => {
                 setCommitHash(hasherResult);
                 setActiveSubTab('commit');
               }}
               disabled={!hasherResult}
-              className="btn-primary text-xs flex items-center gap-2 order-1 sm:order-2 w-full sm:w-auto justify-center"
+              className="gap-2 order-1 sm:order-2 w-full sm:w-auto"
+              size="sm"
             >
               <span>Lanjut ke Langkah 2: Kirim Penawaran Terkunci</span>
               <ArrowRight className="w-3.5 h-3.5" />
-            </button>
+            </Button>
           </div>
-        </div>
+        </Card>
       )}
 
       {/* TAB 2: FASE 1 COMMIT */}
       {selectedTenderId && activeSubTab === 'commit' && (
-        <form onSubmit={handleSubmitCommit} className="mini-card p-6 space-y-6">
+        <Card as="form" onSubmit={handleSubmitCommit} className="p-6 space-y-6">
           <div className="border-b border-slate-100 pb-4 flex items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="px-2 py-0.5 rounded bg-sky-100 text-sky-800 text-[10px] font-bold uppercase tracking-wider">
+                <span className="px-2 py-0.5 rounded bg-status-commit-bg text-status-commit-text border border-status-commit-border text-2xs font-bold uppercase tracking-wider">
                   Langkah 2 dari 2
                 </span>
-                <span className="text-slate-400 text-xs">•</span>
-                <span className="text-xs text-slate-500 font-medium">Transaksi On-Chain</span>
+                <span className="text-slate-300">•</span>
+                <span className="text-2xs text-slate-500 font-medium">Transaksi On-Chain</span>
               </div>
               <h3 className="font-semibold text-slate-900 text-base">
                 2. Kirim Penawaran Terkunci (Fase Commit)
@@ -832,27 +861,29 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
               </p>
             </div>
             {commitTenderStatus && (
-              <span className={`badge-chip ${commitTenderStatus.badge} text-[10px]`}>
+              <StatusPill tone={STATUS_TONE[commitTenderStatus.stage] || 'neutral'} className="shrink-0">
                 {commitTenderStatus.label}
-              </span>
+              </StatusPill>
             )}
           </div>
 
           {/* Step 2 Hash Status Banner */}
-          <div className="bg-sky-50 border border-sky-200/80 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="bg-status-commit-bg border border-status-commit-border rounded-control p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-2.5">
-              <span className="w-6 h-6 rounded-full bg-sky-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
-                ✓
+              <span className="w-6 h-6 rounded-full bg-status-commit-dot text-white font-bold text-xs flex items-center justify-center shrink-0">
+                <Check className="w-3.5 h-3.5" />
               </span>
               <div>
                 <strong className="text-slate-900">Hash Penawaran dari Langkah 1:</strong>
-                <div className="text-[11px] text-slate-600 mt-0.5">
+                <div className="text-2xs text-slate-600 mt-0.5">
                   {commitHash || hasherResult ? (
                     <span>
-                      Tersedia: <code className="font-mono bg-sky-100 text-sky-900 px-1 py-0.5 rounded text-[10px]">{(commitHash || hasherResult).slice(0, 18)}...</code> (Nilai riil: {formatIDR(hasherHarga)})
+                      Tersedia: <code className="font-mono bg-white/70 text-status-commit-text px-1 py-0.5 rounded">{(commitHash || hasherResult).slice(0, 18)}...</code> (Nilai riil: {formatIDR(hasherHarga)})
                     </span>
                   ) : (
-                    <span className="text-amber-700 font-semibold">⚠️ Anda belum membuat hash di Langkah 1 (Kalkulator Hash).</span>
+                    <span className="text-status-reveal-text font-semibold flex items-center gap-1">
+                      <AlertTriangle className="w-3 h-3" /> Anda belum membuat hash di Langkah 1 (Kalkulator Hash).
+                    </span>
                   )}
                 </div>
               </div>
@@ -860,32 +891,36 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
             <button
               type="button"
               onClick={() => setActiveSubTab('hasher')}
-              className="text-xs text-sky-700 hover:text-sky-900 font-semibold underline shrink-0 self-start sm:self-auto"
+              className="text-2xs text-brand-700 hover:text-brand-900 font-semibold underline shrink-0 self-start sm:self-auto"
             >
               {commitHash || hasherResult ? "← Ubah Harga / Sandi di Langkah 1" : "Hitung di Langkah 1 Sekarang →"}
             </button>
           </div>
 
           {commitStatus && (
-            <div className={`p-4 rounded-xl text-xs flex items-start gap-2.5 ${commitStatus.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`}>
-              {commitStatus.type === 'success' ? <Check className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" /> : <AlertTriangle className="w-4 h-4 text-rose-600 mt-0.5 shrink-0" />}
+            <div className={`p-4 rounded-control text-xs flex items-start gap-2.5 border ${
+              commitStatus.type === 'success'
+                ? 'bg-status-done-bg text-status-done-text border-status-done-border'
+                : 'bg-status-danger-bg text-status-danger-text border-status-danger-border'
+            }`}>
+              {commitStatus.type === 'success'
+                ? <Check className="w-4 h-4 mt-0.5 shrink-0" />
+                : <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />}
               <div>{commitStatus.message}</div>
             </div>
           )}
 
           <div className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Pilih Paket Tender
-              </label>
+            <Field label="Pilih Paket Tender" htmlFor="commit-tender">
               <select
+                id="commit-tender"
                 value={commitTenderId || ''}
                 onChange={(e) => {
                   const id = Number(e.target.value);
                   setCommitTenderId(id);
                   setSelectedTenderId(id);
                 }}
-                className="form-input text-xs sm:text-sm"
+                className="form-input"
               >
                 {tenders.map(t => {
                   const st = getTenderStatus(t);
@@ -897,53 +932,55 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
                 })}
               </select>
               {selectedCommitTender && (
-                <div className="mt-2 text-xs text-slate-600 bg-slate-50 p-2.5 rounded border border-slate-100 flex justify-between">
+                <div className="mt-2 text-2xs text-slate-600 bg-slate-50 p-2.5 rounded-control border border-slate-100 flex flex-wrap justify-between gap-2">
                   <span>Pagu Anggaran: <strong>{formatIDR(selectedCommitTender.paguAnggaranIDR)}</strong></span>
-                  <span>Batas Waktu Commit: <strong>{new Date(selectedCommitTender.batasWaktuCommit * 1000).toLocaleTimeString('id-ID')}</strong></span>
+                  <span>Batas Commit: <strong>{new Date(selectedCommitTender.batasWaktuCommit * 1000).toLocaleTimeString('id-ID')}</strong></span>
                 </div>
               )}
-            </div>
+            </Field>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
-                <span>Nama Perusahaan (PT/CV Rekanan)</span>
-                <span className="text-[10px] text-emerald-600 font-medium">Terekam di Event Explorer</span>
-              </label>
+            <Field
+              label="Nama Perusahaan (PT/CV Rekanan)"
+              htmlFor="commit-vendor"
+              required
+              labelAction={<span className="text-2xs text-status-done-text font-medium">Terekam di Event Explorer</span>}
+              hint="Identitas ini dipancarkan langsung ke tab Logs/Events Block Explorer agar auditor KPK & masyarakat dapat membaca nama PT Anda secara gamblang."
+            >
               <input
+                id="commit-vendor"
                 type="text"
                 value={commitVendorName}
                 onChange={(e) => setCommitVendorName(e.target.value)}
                 placeholder="Contoh: PT Maju Bersama / PT Karya Nusantara"
-                className="form-input text-xs sm:text-sm"
+                className="form-input"
                 required
               />
-              <p className="text-[10px] text-slate-400 mt-1">
-                Identitas ini dipancarkan langsung ke tab <em>Logs/Events</em> Block Explorer agar auditor KPK & masyarakat dapat membaca nama PT Anda secara gamblang.
-              </p>
-            </div>
+            </Field>
 
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-semibold text-slate-700">
-                  Hash Terkunci (bytes32 Keccak-256)
-                </label>
+            <Field
+              label="Hash Terkunci (bytes32 Keccak-256)"
+              htmlFor="commit-hash"
+              required
+              labelAction={
                 <button
                   type="button"
                   onClick={() => setCommitHash(hasherResult)}
-                  className="text-[11px] text-blue-600 hover:underline font-medium"
+                  className="text-2xs text-brand-700 hover:underline font-medium"
                 >
                   Ambil dari Kalkulator
                 </button>
-              </div>
+              }
+            >
               <input
+                id="commit-hash"
                 type="text"
                 value={commitHash || hasherResult}
                 onChange={(e) => setCommitHash(e.target.value)}
                 placeholder="0x..."
-                className="form-input text-xs font-mono"
+                className="form-input font-mono"
                 required
               />
-            </div>
+            </Field>
 
             <IpfsUploadField
               label="Dokumen Proposal Teknis & Dokumen Penawaran Rekanan"
@@ -957,8 +994,8 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
 
           <div className="border-t border-slate-100 pt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
             {commitTenderStatus?.stage !== 'COMMIT' ? (
-              <div className="text-xs text-amber-700 bg-amber-50 px-3 py-1.5 rounded border border-amber-200 flex items-center gap-1.5">
-                <AlertTriangle className="w-4 h-4 text-amber-600" />
+              <div className="text-xs text-status-reveal-text bg-status-reveal-bg px-3 py-1.5 rounded-control border border-status-reveal-border flex items-center gap-1.5">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
                 <span>Tender ini sedang tidak dalam Fase Commit.</span>
               </div>
             ) : (
@@ -967,56 +1004,66 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
               </div>
             )}
 
-            <button
+            <Button
               type="submit"
+              size="sm"
               disabled={commitTenderStatus?.stage !== 'COMMIT' || isCommitSubmitting}
-              className="btn-primary text-xs w-full sm:w-auto"
+              className="gap-1.5 w-full sm:w-auto"
             >
               <Send className="w-3.5 h-3.5" />
               <span>{isCommitSubmitting ? "Mengirim ke Blockchain..." : "Kirim Penawaran Terkunci"}</span>
-            </button>
+            </Button>
           </div>
-        </form>
+        </Card>
       )}
 
       {/* TAB 3: FASE 2 REVEAL */}
       {selectedTenderId && activeSubTab === 'reveal' && (
-        <form onSubmit={handleSubmitReveal} className="mini-card p-6 space-y-6">
+        <Card as="form" onSubmit={handleSubmitReveal} className="p-6 space-y-6">
           <div className="border-b border-slate-100 pb-4 flex items-start justify-between gap-4">
             <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="px-2 py-0.5 rounded bg-status-reveal-bg text-status-reveal-text border border-status-reveal-border text-2xs font-bold uppercase tracking-wider">
+                  Fase Reveal
+                </span>
+              </div>
               <h3 className="font-semibold text-slate-900 text-base">
-                Fase 2: Pembukaan Harga (Reveal) & Verifikasi Kejujuran
+                Fase 2: Pembukaan Harga (Reveal) &amp; Verifikasi Kejujuran
               </h3>
               <p className="text-xs text-slate-500 mt-1">
                 Masukkan nominal harga asli dan kata sandi Anda. Smart Contract akan mencocokkan kembali keccak256 dengan hash komitmen awal Anda.
               </p>
             </div>
             {revealTenderStatus && (
-              <span className={`badge-chip ${revealTenderStatus.badge} text-[10px]`}>
+              <StatusPill tone={STATUS_TONE[revealTenderStatus.stage] || 'neutral'} className="shrink-0">
                 {revealTenderStatus.label}
-              </span>
+              </StatusPill>
             )}
           </div>
 
           {revealStatus && (
-            <div className={`p-4 rounded-xl text-xs flex items-start gap-2.5 ${revealStatus.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`}>
-              {revealStatus.type === 'success' ? <Check className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" /> : <AlertTriangle className="w-4 h-4 text-rose-600 mt-0.5 shrink-0" />}
+            <div className={`p-4 rounded-control text-xs flex items-start gap-2.5 border ${
+              revealStatus.type === 'success'
+                ? 'bg-status-done-bg text-status-done-text border-status-done-border'
+                : 'bg-status-danger-bg text-status-danger-text border-status-danger-border'
+            }`}>
+              {revealStatus.type === 'success'
+                ? <Check className="w-4 h-4 mt-0.5 shrink-0" />
+                : <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />}
               <div>{revealStatus.message}</div>
             </div>
           )}
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Pilih Paket Tender
-            </label>
+          <Field label="Pilih Paket Tender" htmlFor="reveal-tender">
             <select
+              id="reveal-tender"
               value={revealTenderId || ''}
               onChange={(e) => {
                 const id = Number(e.target.value);
                 setRevealTenderId(id);
                 setSelectedTenderId(id);
               }}
-              className="form-input text-xs sm:text-sm"
+              className="form-input"
             >
               {tenders.map(t => {
                 const st = getTenderStatus(t);
@@ -1027,16 +1074,16 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
                 );
               })}
             </select>
-          </div>
+          </Field>
 
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs space-y-2">
-            <div className="font-semibold text-slate-800 flex items-center justify-between">
+          <div className="bg-slate-50 border border-slate-200 rounded-control p-4 text-xs space-y-2">
+            <div className="font-semibold text-slate-800 flex flex-wrap items-center justify-between gap-2">
               <span>Status Pendaftaran Akun Anda ({currentAccount.name}):</span>
               {userExistingBid ? (
                 userExistingBid.sudahReveal ? (
-                  <span className="text-emerald-700 font-medium">Sudah Dibuka ({formatIDR(userExistingBid.hargaTerbukaIDR)})</span>
+                  <span className="text-status-done-text font-medium">Sudah Dibuka ({formatIDR(userExistingBid.hargaTerbukaIDR)})</span>
                 ) : (
-                  <span className="text-sky-700 font-medium">Terdaftar di Fase Commit (Belum Reveal)</span>
+                  <span className="text-status-commit-text font-medium">Terdaftar di Fase Commit (Belum Reveal)</span>
                 )
               ) : (
                 <span className="text-slate-400">Belum Mengirim Commit</span>
@@ -1044,51 +1091,49 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
             </div>
 
             {userExistingBid && (
-              <div className="font-mono text-[11px] text-slate-500 bg-white p-2.5 rounded border border-slate-200 break-all">
+              <div className="font-mono text-2xs text-slate-500 bg-white p-2.5 rounded-control border border-slate-200 break-all">
                 Hash Terkunci di Blockchain: <span className="text-slate-900 font-semibold">{userExistingBid.hashTerkunci}</span>
               </div>
             )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Harga Asli yang Ditawarkan (IDR)
-              </label>
+            <Field label="Harga Asli yang Ditawarkan (IDR)" htmlFor="reveal-harga" required>
               <input
+                id="reveal-harga"
                 type="text"
                 value={revealHarga}
                 onChange={(e) => setRevealHarga(e.target.value.replace(/[^0-9]/g, ''))}
                 placeholder="Contoh: 920000000"
-                className="form-input text-sm font-mono"
+                className="form-input font-mono"
                 required
               />
-              <span className="text-[11px] text-slate-500 mt-1 block">
+              <span className="text-2xs text-slate-500 mt-1 block">
                 Terbaca: <strong>{formatIDR(revealHarga)}</strong>
               </span>
-            </div>
+            </Field>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Kata Sandi Rahasia (*Salt*)
-              </label>
+            <Field label="Kata Sandi Rahasia (Salt)" htmlFor="reveal-salt" required>
               <input
+                id="reveal-salt"
                 type="text"
                 value={revealSalt}
                 onChange={(e) => setRevealSalt(e.target.value)}
                 placeholder="Contoh: sandiVendorA123"
-                className="form-input text-sm font-mono"
+                className="form-input font-mono"
                 required
               />
-            </div>
+            </Field>
           </div>
 
           {/* Quick autofill from Local Vault */}
           {(userExistingBid?.saltDisimpan || getVendorBidLocal(revealTenderId, currentAccount.address)?.salt) && (
-            <div className="flex items-center justify-between bg-blue-50/80 border border-blue-200 rounded-lg p-2.5 text-xs text-blue-900">
+            <div className="flex items-center justify-between gap-2 bg-status-commit-bg border border-status-commit-border rounded-control p-2.5 text-xs text-slate-700">
               <span>Tersedia data penawaran tersimpan di Brankas Lokal peramban Anda.</span>
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                size="sm"
+                className="h-7 px-2 text-2xs shrink-0"
                 onClick={() => {
                   const saved = getVendorBidLocal(revealTenderId, currentAccount.address);
                   const price = userExistingBid?.hargaDisimpan || saved?.harga;
@@ -1096,22 +1141,24 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
                   if (price) setRevealHarga(String(price));
                   if (salt) setRevealSalt(salt);
                 }}
-                className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium text-[11px]"
               >
                 Auto-Isi dari Brankas
-              </button>
+              </Button>
             </div>
           )}
 
           <div className="border-t border-slate-100 pt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
             {revealTenderStatus?.stage !== 'REVEAL' ? (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-amber-700">Tender saat ini belum/tidak dalam Fase Reveal.</span>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs text-status-reveal-text flex items-center gap-1.5">
+                  <AlertTriangle className="w-4 h-4 shrink-0" />
+                  Tender saat ini belum/tidak dalam Fase Reveal.
+                </span>
                 {mode === 'simulation' && (
                   <button
                     type="button"
                     onClick={() => jumpToPhase(revealTenderId, 'reveal')}
-                    className="text-xs text-blue-600 hover:underline font-medium"
+                    className="text-2xs text-brand-700 hover:underline font-medium"
                   >
                     Lompatkan Waktu Simulasi ke Reveal &rarr;
                   </button>
@@ -1123,51 +1170,57 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
               </div>
             )}
 
-            <button
+            <Button
               type="submit"
+              size="sm"
               disabled={revealTenderStatus?.stage !== 'REVEAL' || isRevealSubmitting}
-              className="btn-primary text-xs w-full sm:w-auto"
+              className="gap-1.5 w-full sm:w-auto"
             >
               <Unlock className="w-3.5 h-3.5" />
               <span>{isRevealSubmitting ? "Memverifikasi di Blockchain..." : "Buka Penawaran (Reveal)"}</span>
-            </button>
+            </Button>
           </div>
-        </form>
+        </Card>
       )}
 
       {/* TAB 4: MY LOCAL VAULT */}
       {activeSubTab === 'vault' && (
-        <div className="mini-card p-6 space-y-4">
+        <Card className="p-6 space-y-4">
           <div className="border-b border-slate-100 pb-3">
             <h3 className="font-semibold text-slate-900 text-base flex items-center gap-2">
-              <Archive className="w-4 h-4 text-slate-900" />
+              <Archive className="w-4 h-4 text-brand-600" />
               <span>Brankas Rahasia Lokal Rekanan (Encrypted Client Vault)</span>
             </h3>
             <p className="text-xs text-slate-500 mt-1">
-              Daftar komitmen penawaran yang pernah Anda buat di peramban ini. Kata sandi rahasia disimpan di penyimpanan lokal 
+              Daftar komitmen penawaran yang pernah Anda buat di peramban ini. Kata sandi rahasia disimpan di penyimpanan lokal
               agar Anda tidak lupa saat jadwal pembukaan harga (Fase Reveal) tiba.
             </p>
           </div>
 
           {vaultBids.length === 0 ? (
-            <div className="p-8 text-center bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-500">
-              Belum ada data penawaran tersimpan di brankas lokal. Kirim penawaran terkunci pada menu Fase 1 untuk mulai menyimpan.
-            </div>
+            <EmptyState
+              icon={Archive}
+              title="Brankas Lokal Masih Kosong"
+              description="Belum ada data penawaran tersimpan di brankas lokal. Kirim penawaran terkunci pada menu Fase Commit untuk mulai menyimpan."
+            />
           ) : (
             <div className="space-y-3">
               {vaultBids.map((b, idx) => (
-                <div key={idx} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                  <div className="space-y-1 text-xs">
+                <div key={idx} className="bg-white p-4 rounded-card border border-slate-200 shadow-card flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                  <div className="space-y-1 text-xs min-w-0">
                     <div className="font-bold text-slate-900 text-sm">{b.namaProyek}</div>
                     <div className="text-slate-600">
-                      Harga Asli: <strong className="text-slate-900">{formatIDR(b.harga)}</strong> • Kata Sandi: <code className="bg-slate-100 px-1 py-0.5 rounded font-mono text-slate-800">{b.salt}</code>
+                      Harga Asli: <strong className="text-slate-900">{formatIDR(b.harga)}</strong> • Kata Sandi:{' '}
+                      <code className="bg-slate-100 px-1 py-0.5 rounded font-mono text-slate-800">{b.salt}</code>
                     </div>
-                    <div className="font-mono text-[11px] text-slate-400 truncate max-w-md">
+                    <div className="font-mono text-2xs text-slate-400 truncate max-w-md">
                       Hash: {b.hash}
                     </div>
                   </div>
 
-                  <button
+                  <Button
+                    size="sm"
+                    className="shrink-0"
                     onClick={() => {
                       setSelectedTenderId(b.tenderId);
                       setRevealTenderId(b.tenderId);
@@ -1175,23 +1228,22 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
                       setRevealSalt(b.salt);
                       setActiveSubTab('reveal');
                     }}
-                    className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-medium shrink-0 transition"
                   >
                     Buka di Fase Reveal
-                  </button>
+                  </Button>
                 </div>
               ))}
             </div>
           )}
-        </div>
+        </Card>
       )}
 
       {/* TAB 5: ANTI-CHEAT TEST */}
       {activeSubTab === 'anticheat' && (
-        <div className="mini-card p-6 space-y-6">
+        <Card className="p-6 space-y-6">
           <div className="border-b border-slate-100 pb-4">
             <div className="flex items-center gap-2">
-              <AlertOctagon className="w-5 h-5 text-rose-600" />
+              <AlertOctagon className="w-5 h-5 text-status-danger-dot" />
               <h3 className="font-semibold text-slate-900 text-base">
                 Simulasi Uji Coba Vendor Curang (Anti-Cheating Test)
               </h3>
@@ -1202,45 +1254,45 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs space-y-2">
+            <div className="bg-slate-50 border border-slate-200 rounded-card p-4 text-xs space-y-2">
               <div className="font-semibold text-slate-800">1. Data Komitmen Asli Vendor (Fase Commit):</div>
               <ul className="space-y-1 text-slate-600">
                 <li>• Harga Terkunci: <strong>Rp 920.000.000</strong></li>
                 <li>• Kata Sandi: <code className="bg-white px-1 py-0.5 rounded border border-slate-200">sandiVendorA123</code></li>
                 <li>• Hash Tersimpan di Smart Contract:</li>
               </ul>
-              <div className="bg-white p-2 rounded border border-slate-200 font-mono text-[10px] text-slate-700 break-all">
+              <div className="bg-white p-2 rounded-control border border-slate-200 font-mono text-2xs text-slate-700 break-all">
                 {generateCommitHash(920000000, "sandiVendorA123")}
               </div>
             </div>
 
-            <div className="bg-rose-50 border border-rose-200 rounded-xl p-4 text-xs space-y-2">
-              <div className="font-semibold text-rose-900">2. Upaya Manipulasi Saat Reveal:</div>
-              <ul className="space-y-1 text-rose-800">
-                <li>• Harga yang Dicoba Disetor: <strong className="text-rose-700">Rp 800.000.000 (Palsu)</strong></li>
-                <li>• Kata Sandi: <code className="bg-white px-1 py-0.5 rounded border border-rose-200">sandiVendorA123</code></li>
+            <div className="bg-status-danger-bg border border-status-danger-border rounded-card p-4 text-xs space-y-2">
+              <div className="font-semibold text-status-danger-text">2. Upaya Manipulasi Saat Reveal:</div>
+              <ul className="space-y-1 text-status-danger-text">
+                <li>• Harga yang Dicoba Disetor: <strong>Rp 800.000.000 (Palsu)</strong></li>
+                <li>• Kata Sandi: <code className="bg-white px-1 py-0.5 rounded border border-status-danger-border">sandiVendorA123</code></li>
                 <li>• Hash Baru yang Dihitung Smart Contract:</li>
               </ul>
-              <div className="bg-white p-2 rounded border border-rose-200 font-mono text-[10px] text-rose-700 break-all">
+              <div className="bg-white p-2 rounded-control border border-status-danger-border font-mono text-2xs text-status-danger-text break-all">
                 {generateCommitHash(800000000, "sandiVendorA123")}
               </div>
             </div>
           </div>
 
-          <div className="bg-slate-900 text-white p-4 rounded-xl text-xs space-y-2">
-            <div className="font-semibold text-amber-400">Hasil Evaluasi Smart Contract (Solidity):</div>
-            <pre className="bg-slate-950 p-3 rounded border border-slate-800 font-mono text-[11px] text-emerald-400 overflow-x-auto">
+          <div className="bg-slate-950 text-white p-4 rounded-card text-xs space-y-2 border border-slate-800">
+            <div className="font-semibold text-status-reveal-dot">Hasil Evaluasi Smart Contract (Solidity):</div>
+            <pre className="bg-black/40 p-3 rounded-control border border-slate-800 font-mono text-2xs text-status-done-dot overflow-x-auto">
 {`bytes32 buktiHash = keccak256(abi.encodePacked(_hargaAsliIDR, _kataSandiRahasia));
 require(
     buktiHash == p.hashTerkunci,
     "DISKUALIFIKASI: Harga atau Kata Sandi tidak cocok dengan Hash yang dikunci di awal!"
 );`}
             </pre>
-            <p className="text-slate-300 text-[11px]">
+            <p className="text-slate-300 text-2xs">
               Perbedaan 1 Rupiah saja membuat seluruh hash berubah total (*avalanche effect*), sehingga manipulasi tertolak secara mutlak!
             </p>
           </div>
-        </div>
+        </Card>
       )}
     </div>
   );
