@@ -11,7 +11,6 @@ import {
   Clock, 
   RotateCcw, 
   Wallet, 
-  PlusCircle, 
   ChevronDown,
   Layers,
   ExternalLink,
@@ -362,19 +361,6 @@ export function Header({ activePortal, setActivePortal, onOpenCreateModal }) {
                 </>
               )}
             </div>
-          )}
-
-          {/* Action: Buat Tender Baru (hanya tampil di Portal Pemerintah) */}
-          {isGov && (
-            <button
-              onClick={onOpenCreateModal}
-              className="btn-primary text-xs py-1.5 px-2.5 sm:px-3 flex items-center gap-1 bg-amber-600 hover:bg-amber-700 text-white shrink-0"
-              title="Panitia Pemerintah menerbitkan proyek lelang baru"
-            >
-              <PlusCircle className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Buat Tender</span>
-              <span className="sm:hidden">Buat</span>
-            </button>
           )}
         </div>
       </div>
