@@ -77,64 +77,6 @@ export function GovernmentPortal({ onOpenCreateModal, onSelectTender }) {
 
   return (
     <div className="space-y-6">
-      {/* Official Government Banner */}
-      <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white rounded-2xl p-4 sm:p-6 lg:p-7 shadow-lg border border-slate-800">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 font-semibold text-[11px] border border-amber-500/30 flex items-center gap-1.5">
-                <Building className="w-3.5 h-3.5 text-amber-400" />
-                <span>Portal Resmi Panitia Pengadaan & PPK</span>
-              </span>
-              <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] border border-slate-700">
-                Kepatuhan Perpres Pengadaan Barang/Jasa
-              </span>
-            </div>
-
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-white">
-              Sistem LPSE Terdesentralisasi — TranspaTender ID
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-300 max-w-3xl leading-relaxed">
-              Portal Panitia Pemerintah untuk menerbitkan lelang pengadaan barang/jasa publik, memantau partisipasi vendor 
-              secara tertutup (*sealed-bid*), dan mengesahkan pemenang dengan bukti matematis on-chain di Base Sepolia Testnet.
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row lg:flex-col items-stretch sm:items-start lg:items-end gap-2.5 sm:gap-3 shrink-0 w-full lg:w-auto">
-            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-              <button
-                onClick={onOpenCreateModal}
-                className="flex-1 sm:flex-initial px-4 sm:px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2"
-              >
-                <PlusCircle className="w-4 h-4" />
-                <span>Terbitkan Paket Tender Baru</span>
-              </button>
-
-              {mode === 'web3' && (
-                <button
-                  onClick={() => syncContractData()}
-                  disabled={isSyncing}
-                  className="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs rounded-xl shadow-sm transition flex items-center justify-center gap-1.5 disabled:opacity-50"
-                  title="Perbarui data lelang langsung dari blockchain"
-                >
-                  <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-amber-400' : ''}`} />
-                  <span>{isSyncing ? "Menyinkronkan..." : "Sinkronkan"}</span>
-                </button>
-              )}
-            </div>
-
-            <div className="text-[11px] text-slate-400 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800 flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              <span className="truncate">
-                {mode === 'web3' 
-                  ? (isOwner ? "👑 Dompet: Panitia (Owner)" : `Auditor (${truncateAddress(web3Account)})`) 
-                  : "Akun: Panitia Pemerintah (Simulasi)"}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Government KPI Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200/80 shadow-sm">
@@ -190,43 +132,67 @@ export function GovernmentPortal({ onOpenCreateModal, onSelectTender }) {
         </div>
       </div>
 
-      {/* Government Navigation Tabs */}
-      <div className="flex border-b border-slate-200 gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar text-xs sm:text-sm font-medium pb-0.5">
-        <button
-          onClick={() => setGovSubTab('tenders')}
-          className={`pb-2.5 pt-1 px-3 sm:px-4 border-b-2 flex items-center gap-2 transition whitespace-nowrap shrink-0 ${
-            govSubTab === 'tenders' 
-              ? 'border-amber-600 text-amber-900 font-bold' 
-              : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          <Building className="w-4 h-4 text-amber-600" />
-          <span>1. Manajemen Paket Lelang</span>
-        </button>
+      {/* Government Navigation Tabs & Actions */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-2">
+        <div className="flex gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar text-xs sm:text-sm font-medium">
+          <button
+            onClick={() => setGovSubTab('tenders')}
+            className={`pb-2 pt-1 px-3 sm:px-4 border-b-2 flex items-center gap-2 transition whitespace-nowrap shrink-0 ${
+              govSubTab === 'tenders' 
+                ? 'border-amber-600 text-amber-900 font-bold' 
+                : 'border-transparent text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            <Building className="w-4 h-4 text-amber-600" />
+            <span>1. Manajemen Paket Lelang</span>
+          </button>
 
-        <button
-          onClick={() => setGovSubTab('audit')}
-          className={`pb-2.5 pt-1 px-3 sm:px-4 border-b-2 flex items-center gap-2 transition whitespace-nowrap shrink-0 ${
-            govSubTab === 'audit' 
-              ? 'border-indigo-600 text-indigo-900 font-bold' 
-              : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          <ShieldCheck className="w-4 h-4 text-indigo-600" />
-          <span>2. Jejak Audit Publik & Laporan</span>
-        </button>
+          <button
+            onClick={() => setGovSubTab('audit')}
+            className={`pb-2 pt-1 px-3 sm:px-4 border-b-2 flex items-center gap-2 transition whitespace-nowrap shrink-0 ${
+              govSubTab === 'audit' 
+                ? 'border-indigo-600 text-indigo-900 font-bold' 
+                : 'border-transparent text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            <ShieldCheck className="w-4 h-4 text-indigo-600" />
+            <span>2. Jejak Audit Publik & Laporan</span>
+          </button>
 
-        <button
-          onClick={() => setGovSubTab('contract')}
-          className={`pb-2.5 pt-1 px-3 sm:px-4 border-b-2 flex items-center gap-2 transition whitespace-nowrap shrink-0 ${
-            govSubTab === 'contract' 
-              ? 'border-slate-900 text-slate-900 font-bold' 
-              : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          <FileText className="w-4 h-4 text-slate-700" />
-          <span>3. Arsitektur Smart Contract</span>
-        </button>
+          <button
+            onClick={() => setGovSubTab('contract')}
+            className={`pb-2 pt-1 px-3 sm:px-4 border-b-2 flex items-center gap-2 transition whitespace-nowrap shrink-0 ${
+              govSubTab === 'contract' 
+                ? 'border-slate-900 text-slate-900 font-bold' 
+                : 'border-transparent text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            <FileText className="w-4 h-4 text-slate-700" />
+            <span>3. Arsitektur Smart Contract</span>
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          {mode === 'web3' && (
+            <button
+              onClick={() => syncContractData()}
+              disabled={isSyncing}
+              className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-semibold text-xs rounded-lg shadow-2xs transition flex items-center gap-1.5 disabled:opacity-50"
+              title="Perbarui data lelang langsung dari blockchain"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-amber-600' : ''}`} />
+              <span>{isSyncing ? "Menyinkronkan..." : "Sinkronkan"}</span>
+            </button>
+          )}
+
+          <button
+            onClick={onOpenCreateModal}
+            className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg shadow-sm transition flex items-center justify-center gap-1.5"
+          >
+            <PlusCircle className="w-4 h-4" />
+            <span>Terbitkan Paket Tender</span>
+          </button>
+        </div>
       </div>
 
       {/* SUB-TAB 1: TENDER LIST & MANAGEMENT */}

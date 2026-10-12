@@ -179,18 +179,30 @@ export function Header({ activePortal, setActivePortal, onOpenCreateModal }) {
           </div>
         </div>
 
-        {/* Center: Active Portal Indicator */}
-        <div className="hidden md:flex items-center bg-slate-100/90 px-3 py-1.5 rounded-xl border border-slate-200 text-xs text-slate-600 gap-2">
-          <span className="text-slate-400">Portal Aktif:</span>
-          <span className={`font-bold ${isGov ? 'text-amber-800' : 'text-blue-800'}`}>
-            {isGov ? "🏛️ Portal Pemerintah" : "🏢 Portal Rekanan Vendor"}
-          </span>
-          <span className="text-slate-300">|</span>
+        {/* Center: Active Portal Switcher */}
+        <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-semibold">
           <button
-            onClick={() => setActivePortal(isGov ? 'vendor' : 'pemerintah')}
-            className="text-indigo-600 hover:text-indigo-800 font-semibold hover:underline"
+            onClick={() => setActivePortal('pemerintah')}
+            className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 ${
+              isGov 
+                ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/80 font-bold' 
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
           >
-            Pindah ke {isGov ? "Portal Vendor" : "Portal Pemerintah"} &rarr;
+            <Building className={`w-3.5 h-3.5 ${isGov ? 'text-amber-600' : 'text-slate-400'}`} />
+            <span>Pemerintah</span>
+          </button>
+
+          <button
+            onClick={() => setActivePortal('vendor')}
+            className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 ${
+              !isGov 
+                ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/80 font-bold' 
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <Briefcase className={`w-3.5 h-3.5 ${!isGov ? 'text-blue-600' : 'text-slate-400'}`} />
+            <span>Rekanan Vendor</span>
           </button>
         </div>
 

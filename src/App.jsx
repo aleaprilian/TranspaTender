@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTender } from './context/TenderContext';
 import { Header } from './components/Header';
-import { PortalSwitcherBar } from './components/PortalSwitcherBar';
 import { Web3ControlBar } from './components/Web3ControlBar';
 import { TransactionToast } from './components/TransactionToast';
 import { GovernmentPortal } from './components/GovernmentPortal';
@@ -69,12 +68,6 @@ export function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FCFCFD]">
-      {/* Top Multi-Window & Portal Switcher Bar */}
-      <PortalSwitcherBar 
-        activePortal={activePortal} 
-        setActivePortal={setActivePortal} 
-      />
-
       {/* Dynamic Header adapted for Government vs Vendor */}
       <Header 
         activePortal={activePortal} 
