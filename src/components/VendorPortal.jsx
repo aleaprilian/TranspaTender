@@ -118,6 +118,31 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
     }
   }, [initialTenderId, initialTab]);
 
+  // Auto-sync reveal form inputs with stored vault or existing bid when switching tender / tab
+  useEffect(() => {
+    if (activeSubTab === 'reveal') {
+      const targetId = revealTenderId || selectedTenderId;
+      if (targetId) {
+        if (!revealTenderId) setRevealTenderId(targetId);
+        if (!selectedTenderId) setSelectedTenderId(targetId);
+
+        const saved = getVendorBidLocal(targetId, currentAccount?.address);
+        const tender = tenders.find(t => t.id === Number(targetId));
+        const bid = tender?.penawaran?.[currentAccount?.address?.toLowerCase()] || tender?.penawaran?.[currentAccount?.address];
+
+        const price = bid?.hargaDisimpan || saved?.harga || (bid?.sudahReveal ? bid?.hargaTerbukaIDR : null);
+        const salt = bid?.saltDisimpan || saved?.salt;
+
+        if (price && !revealHarga) {
+          setRevealHarga(String(price));
+        }
+        if (salt && !revealSalt) {
+          setRevealSalt(salt);
+        }
+      }
+    }
+  }, [activeSubTab, revealTenderId, selectedTenderId, currentAccount?.address, tenders]);
+
   // Copy hash helper
   const handleCopyHash = () => {
     if (!hasherResult) return;
@@ -177,6 +202,9 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
       // Auto navigate ke Menu 3 (Fase Reveal) setelah Fase 2 berhasil
       setTimeout(() => {
         setRevealTenderId(commitTenderId);
+        setSelectedTenderId(commitTenderId);
+        setRevealHarga(hasherHarga);
+        setRevealSalt(hasherSalt);
         setActiveSubTab('reveal');
       }, 2000);
     } catch (err) {
@@ -195,11 +223,15 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
     setRevealStatus(null);
     setIsRevealSubmitting(true);
     try {
+      const targetTenderId = revealTenderId || selectedTenderId;
+      if (!targetTenderId) {
+        throw new Error("Pilih paket tender terlebih dahulu!");
+      }
       if (!revealHarga || !revealSalt) {
         throw new Error("Harga asli dan kata sandi rahasia wajib diisi!");
       }
       await bukaPenawaran({
-        idTender: revealTenderId,
+        idTender: targetTenderId,
         hargaAsliIDR: revealHarga,
         kataSandiRahasia: revealSalt
       });
@@ -242,7 +274,27 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
     if (tender.paguAnggaranIDR && (!hasherHarga || Number(hasherHarga) > tender.paguAnggaranIDR)) {
       setHasherHarga(String(Math.floor(tender.paguAnggaranIDR * 0.9)));
     }
+    const saved = getVendorBidLocal(tender.id, currentAccount?.address);
+    const bid = tender.penawaran?.[currentAccount?.address?.toLowerCase()] || tender.penawaran?.[currentAccount?.address];
+    const price = bid?.hargaDisimpan || saved?.harga || (bid?.sudahReveal ? bid?.hargaTerbukaIDR : null);
+    const salt = bid?.saltDisimpan || saved?.salt;
+    if (price) setRevealHarga(String(price));
+    if (salt) setRevealSalt(salt);
     setActiveSubTab(targetTab);
+  };
+
+  // Switch tender from inside Reveal Form
+  const handleSelectRevealTender = (id) => {
+    setRevealTenderId(id);
+    setSelectedTenderId(id);
+    setRevealStatus(null);
+    const saved = getVendorBidLocal(id, currentAccount?.address);
+    const tender = tenders.find(t => t.id === Number(id));
+    const bid = tender?.penawaran?.[currentAccount?.address?.toLowerCase()] || tender?.penawaran?.[currentAccount?.address];
+    const price = bid?.hargaDisimpan || saved?.harga || (bid?.sudahReveal ? bid?.hargaTerbukaIDR : '');
+    const salt = bid?.saltDisimpan || saved?.salt || '';
+    setRevealHarga(price ? String(price) : '');
+    setRevealSalt(salt || '');
   };
 
   // Load all local saved bids for Vault
@@ -680,7 +732,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
           <div className="border-b border-slate-100 pb-4">
             <div className="flex items-center gap-2 mb-1">
               <span className="px-2 py-0.5 rounded bg-status-reveal-bg text-status-reveal-text border border-status-reveal-border text-2xs font-bold uppercase tracking-wider">
-                Langkah 1 dari 2
+                Langkah 1 dari 3
               </span>
               <span className="text-slate-300">•</span>
               <span className="text-2xs text-slate-500 font-medium">Penyusunan Harga Rahasia (Off-Chain)</span>
@@ -848,7 +900,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <span className="px-2 py-0.5 rounded bg-status-commit-bg text-status-commit-text border border-status-commit-border text-2xs font-bold uppercase tracking-wider">
-                  Langkah 2 dari 2
+                  Langkah 2 dari 3
                 </span>
                 <span className="text-slate-300">•</span>
                 <span className="text-2xs text-slate-500 font-medium">Transaksi On-Chain</span>
@@ -1024,11 +1076,13 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <span className="px-2 py-0.5 rounded bg-status-reveal-bg text-status-reveal-text border border-status-reveal-border text-2xs font-bold uppercase tracking-wider">
-                  Fase Reveal
+                  Langkah 3 dari 3
                 </span>
+                <span className="text-slate-300">•</span>
+                <span className="text-2xs text-slate-500 font-medium">Pembuktian Kriptografi On-Chain</span>
               </div>
               <h3 className="font-semibold text-slate-900 text-base">
-                Fase 2: Pembukaan Harga (Reveal) &amp; Verifikasi Kejujuran
+                3. Buka Penawaran (Fase Reveal) &amp; Verifikasi Kejujuran
               </h3>
               <p className="text-xs text-slate-500 mt-1">
                 Masukkan nominal harga asli dan kata sandi Anda. Smart Contract akan mencocokkan kembali keccak256 dengan hash komitmen awal Anda.
@@ -1057,11 +1111,10 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
           <Field label="Pilih Paket Tender" htmlFor="reveal-tender">
             <select
               id="reveal-tender"
-              value={revealTenderId || ''}
+              value={revealTenderId || selectedTenderId || ''}
               onChange={(e) => {
                 const id = Number(e.target.value);
-                setRevealTenderId(id);
-                setSelectedTenderId(id);
+                handleSelectRevealTender(id);
               }}
               className="form-input"
             >
@@ -1127,15 +1180,17 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
           </div>
 
           {/* Quick autofill from Local Vault */}
-          {(userExistingBid?.saltDisimpan || getVendorBidLocal(revealTenderId, currentAccount.address)?.salt) && (
+          {(userExistingBid?.saltDisimpan || getVendorBidLocal(revealTenderId || selectedTenderId, currentAccount.address)?.salt) && (
             <div className="flex items-center justify-between gap-2 bg-status-commit-bg border border-status-commit-border rounded-control p-2.5 text-xs text-slate-700">
               <span>Tersedia data penawaran tersimpan di Brankas Lokal peramban Anda.</span>
               <Button
+                type="button"
                 variant="secondary"
                 size="sm"
                 className="h-7 px-2 text-2xs shrink-0"
                 onClick={() => {
-                  const saved = getVendorBidLocal(revealTenderId, currentAccount.address);
+                  const targetId = revealTenderId || selectedTenderId;
+                  const saved = getVendorBidLocal(targetId, currentAccount.address);
                   const price = userExistingBid?.hargaDisimpan || saved?.harga;
                   const salt = userExistingBid?.saltDisimpan || saved?.salt;
                   if (price) setRevealHarga(String(price));
@@ -1157,7 +1212,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
                 {mode === 'simulation' && (
                   <button
                     type="button"
-                    onClick={() => jumpToPhase(revealTenderId, 'reveal')}
+                    onClick={() => jumpToPhase(revealTenderId || selectedTenderId, 'reveal')}
                     className="text-2xs text-brand-700 hover:underline font-medium"
                   >
                     Lompatkan Waktu Simulasi ke Reveal &rarr;
@@ -1173,11 +1228,17 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
             <Button
               type="submit"
               size="sm"
-              disabled={revealTenderStatus?.stage !== 'REVEAL' || isRevealSubmitting}
+              disabled={revealTenderStatus?.stage !== 'REVEAL' || isRevealSubmitting || userExistingBid?.sudahReveal}
               className="gap-1.5 w-full sm:w-auto"
             >
               <Unlock className="w-3.5 h-3.5" />
-              <span>{isRevealSubmitting ? "Memverifikasi di Blockchain..." : "Buka Penawaran (Reveal)"}</span>
+              <span>
+                {userExistingBid?.sudahReveal
+                  ? "✓ Penawaran Sudah Dibuka"
+                  : isRevealSubmitting
+                    ? "Memverifikasi di Blockchain..."
+                    : "Buka Penawaran (Reveal)"}
+              </span>
             </Button>
           </div>
         </Card>
@@ -1219,6 +1280,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
                   </div>
 
                   <Button
+                    type="button"
                     size="sm"
                     className="shrink-0"
                     onClick={() => {

@@ -1251,7 +1251,7 @@ export function TenderProvider({ children }) {
     }
 
     const vendorAddress = currentAccount.address;
-    const penawaran = tender.penawaran[vendorAddress];
+    const penawaran = tender.penawaran?.[vendorAddress] || tender.penawaran?.[vendorAddress?.toLowerCase()];
     if (!penawaran || !penawaran.sudahCommit) {
       throw new Error("Gagal: Anda tidak terdaftar pada fase Commit tender ini!");
     }
@@ -1282,7 +1282,7 @@ export function TenderProvider({ children }) {
     let newLowest = tender.penawaranTerendahIDR;
     let newWinner = tender.pemenang;
 
-    if (memenuhiSyaratPagu && hargaClean < newLowest) {
+    if (memenuhiSyaratPagu && (newLowest === 0 || newLowest > tender.paguAnggaranIDR || hargaClean < newLowest)) {
       newLowest = hargaClean;
       newWinner = vendorAddress;
     }
@@ -1299,7 +1299,7 @@ export function TenderProvider({ children }) {
           penawaran: {
             ...t.penawaran,
             [vendorAddress]: {
-              ...t.penawaran[vendorAddress],
+              ...(t.penawaran?.[vendorAddress] || t.penawaran?.[vendorAddress?.toLowerCase()] || {}),
               sudahReveal: true,
               hargaTerbukaIDR: hargaClean,
               memenuhiSyaratPagu,
@@ -1460,7 +1460,7 @@ export function TenderProvider({ children }) {
       alert("Catatan: Pada jaringan Blockchain sungguhan (Base Sepolia / Sepolia), waktu berjalan secara alami sesuai jam blok.");
       return;
     }
-    const tender = tenders.find(t => t.id === tenderId);
+    const tender = tenders.find(t => Number(t.id) === Number(tenderId));
     if (!tender) return;
     if (phase === 'reveal') {
       const targetTime = tender.batasWaktuCommit + 5;
