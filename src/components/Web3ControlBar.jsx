@@ -19,12 +19,7 @@ import {
 } from 'lucide-react';
 import { Button, StatusPill } from './ui';
 
-const NETWORKS = [
-  { id: 84532, label: 'Base Sepolia' },
-  { id: 11155111, label: 'Eth Sepolia' },
-  { id: 80002, label: 'Polygon Amoy' },
-  { id: 31337, label: 'Localhost' }
-];
+
 
 export function Web3ControlBar() {
   const {
@@ -151,19 +146,24 @@ export function Web3ControlBar() {
               )}
             </div>
 
-            <div className="flex items-center gap-1.5 text-xs">
-              <span className="text-slate-400 text-[11px]">Jaringan</span>
-              {NETWORKS.map(n => (
+            {/* Network Badge: Exclusive Base Sepolia */}
+            <div className="flex items-center gap-1.5">
+              {web3ChainId !== 84532 ? (
                 <Button
-                  key={n.id}
                   size="sm"
-                  variant={web3ChainId === n.id ? 'primary' : 'secondary'}
-                  className="h-7 px-2 text-[11px]"
-                  onClick={() => switchNetwork(n.id)}
+                  variant="pending"
+                  onClick={() => switchNetwork(84532)}
+                  className="gap-1.5"
+                  title="Beralih ke jaringan resmi TranspaTender: Base Sepolia Testnet"
                 >
-                  {n.label}
+                  <span>Beralih ke Base Sepolia</span>
                 </Button>
-              ))}
+              ) : (
+                <span className="text-[11px] font-medium text-brand-700 bg-brand-50 border border-brand-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand-500" />
+                  <span>Jaringan Resmi: Base Sepolia Testnet</span>
+                </span>
+              )}
             </div>
           </div>
 
