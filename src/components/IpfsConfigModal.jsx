@@ -130,35 +130,35 @@ export function IpfsConfigModal({ isOpen, onClose, onConfigSaved }) {
 
   const modalContent = (
     <div 
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-2xl shadow-2xl max-w-lg w-full border border-slate-200 overflow-hidden" 
+        className="bg-white rounded-2xl shadow-2xl max-w-lg w-full border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col my-auto" 
         onClick={e => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="p-5 bg-gradient-to-r from-slate-900 to-indigo-950 text-white flex items-center justify-between">
+        <div className="p-4 sm:p-5 bg-gradient-to-r from-slate-900 to-indigo-950 text-white flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600/30 border border-indigo-400/30 flex items-center justify-center text-indigo-400">
+            <div className="w-10 h-10 rounded-xl bg-indigo-600/30 border border-indigo-400/30 flex items-center justify-center text-indigo-400 shrink-0">
               <Cloud className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-base text-white">Konfigurasi Penyimpanan IPFS</h3>
-              <p className="text-xs text-indigo-200">Penyimpanan Terdesentralisasi Permanen (Pinata Cloud)</p>
+              <h3 className="font-bold text-sm sm:text-base text-white">Konfigurasi Penyimpanan IPFS</h3>
+              <p className="text-[11px] sm:text-xs text-indigo-200">Penyimpanan Terdesentralisasi Permanen (Pinata Cloud)</p>
             </div>
           </div>
           <button 
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Modal Body - Using DIV instead of FORM to prevent browser reload */}
-        <div className="p-6 space-y-5 text-xs text-slate-700">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 text-xs text-slate-700 overflow-y-auto">
           {/* Status Alert */}
           {status.type && (
             <div className={`p-3 rounded-xl border flex items-start gap-2.5 ${
@@ -322,11 +322,11 @@ export function IpfsConfigModal({ isOpen, onClose, onConfigSaved }) {
           </div>
 
           {/* Modal Action Buttons - All strictly type="button" to prevent form submit */}
-          <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-2.5">
+          <div className="pt-3 sm:pt-4 border-t border-slate-100 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-2.5">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl font-medium transition"
+              className="w-full sm:w-auto px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl font-medium transition text-center"
             >
               Tutup
             </button>
@@ -336,7 +336,7 @@ export function IpfsConfigModal({ isOpen, onClose, onConfigSaved }) {
                 type="button"
                 onClick={handleSave}
                 disabled={!jwtInput.trim() && !useLocal}
-                className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-sm transition disabled:opacity-50 flex items-center gap-1.5"
+                className="w-full sm:w-auto px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-sm transition disabled:opacity-50 flex items-center justify-center gap-1.5"
               >
                 <Check className="w-4 h-4" />
                 <span>Simpan Kunci Pinata</span>
@@ -345,7 +345,7 @@ export function IpfsConfigModal({ isOpen, onClose, onConfigSaved }) {
               <button
                 type="button"
                 onClick={onClose}
-                className="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl shadow-sm transition"
+                className="w-full sm:w-auto px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl shadow-sm transition text-center justify-center"
               >
                 Selesai
               </button>

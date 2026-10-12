@@ -149,13 +149,13 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div 
-        className="modal-content max-w-3xl"
+        className="modal-content max-w-3xl w-full mx-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-6 border-b border-slate-100 flex items-start justify-between gap-4">
+        <div className="p-4 sm:p-6 border-b border-slate-100 flex items-start justify-between gap-3 sm:gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
               <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
                 Tender #{tender.id}
               </span>
@@ -164,27 +164,27 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
                 {status.label}
               </span>
             </div>
-            <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
               {tender.namaProyek}
             </h2>
-            <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
-              <Building className="w-3.5 h-3.5 text-slate-400" />
+            <p className="text-xs text-slate-500 mt-1 flex flex-wrap items-center gap-1.5">
+              <Building className="w-3.5 h-3.5 text-slate-400 shrink-0" />
               <span>{tender.satuanKerja || "Panitia Pengadaan Pemerintah"}</span>
-              <span>•</span>
-              <span>{tender.kategori}</span>
+              <span className="hidden sm:inline">•</span>
+              <span className="text-[11px] text-slate-400 sm:text-slate-500">{tender.kategori}</span>
             </p>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Content Body */}
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
           {errorMsg && (
             <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 text-xs flex items-start gap-2">
               <AlertCircle className="w-4 h-4 text-rose-600 mt-0.5 shrink-0" />
@@ -411,12 +411,12 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 bg-slate-50 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+        <div className="p-3.5 sm:p-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-xs text-slate-500">
             {mode === 'simulation' ? (
-              <>
-                <FastForward className="w-3.5 h-3.5 text-slate-400" />
-                <span>Simulasi Waktu Cepat:</span>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <FastForward className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <span>Simulasi Waktu:</span>
                 {status.stage === 'COMMIT' && (
                   <button
                     onClick={() => jumpToPhase(tender.id, 'reveal')}
@@ -436,18 +436,18 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
                 {(status.stage === 'AWAITING_LOCK' || status.stage === 'COMPLETED') && (
                   <span className="text-slate-400">Waktu Final</span>
                 )}
-              </>
+              </div>
             ) : (
               <span className="text-[11px] text-slate-500">
-                Mode Web3 Aktif • Transaksi divalidasi oleh konsensus Base Sepolia (OP Stack L2).
+                Mode Web3 Aktif • Transaksi divalidasi oleh konsensus Base Sepolia.
               </span>
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
               onClick={onClose}
-              className="btn-secondary text-xs"
+              className="btn-secondary text-xs flex-1 sm:flex-initial justify-center"
             >
               Tutup
             </button>
@@ -458,7 +458,7 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
                   onClose();
                   onOpenVendorModal(tender, 'hasher');
                 }}
-                className="btn-primary text-xs bg-amber-600 hover:bg-amber-700"
+                className="btn-primary text-xs bg-amber-600 hover:bg-amber-700 flex-1 sm:flex-initial justify-center"
               >
                 <Lock className="w-3.5 h-3.5" />
                 <span>Kirim Penawaran Tersegel</span>
@@ -471,7 +471,7 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
                   onClose();
                   onOpenVendorModal(tender, 'reveal');
                 }}
-                className="btn-primary text-xs bg-amber-600 hover:bg-amber-700"
+                className="btn-primary text-xs bg-amber-600 hover:bg-amber-700 flex-1 sm:flex-initial justify-center"
               >
                 <Unlock className="w-3.5 h-3.5" />
                 <span>Buka Penawaran (Reveal)</span>
@@ -482,11 +482,11 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
               <button
                 onClick={handleKunciPemenang}
                 disabled={isLocking || (mode === 'web3' && !isOwner)}
-                className="btn-primary text-xs bg-indigo-700 hover:bg-indigo-800 disabled:opacity-50 flex items-center gap-1.5"
+                className="btn-primary text-xs bg-indigo-700 hover:bg-indigo-800 disabled:opacity-50 flex items-center gap-1.5 flex-1 sm:flex-initial justify-center"
                 title={mode === 'web3' && !isOwner ? "Hanya Panitia Pemerintah (Owner) yang dapat mengunci pemenang" : ""}
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>{isLocking ? "Mengesahkan di Blockchain..." : "Kunci Pemenang Tender"}</span>
+                <span>{isLocking ? "Mengesahkan..." : "Kunci Pemenang"}</span>
               </button>
             )}
           </div>

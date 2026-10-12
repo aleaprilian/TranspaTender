@@ -92,30 +92,30 @@ export function CreateTenderModal({ onClose }) {
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div 
-        className="modal-content max-w-xl"
+        className="modal-content max-w-xl w-full mx-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center shrink-0">
               <PlusCircle className="w-4 h-4 text-slate-100" />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900 text-base">Buat Paket Tender Baru</h3>
-              <p className="text-xs text-slate-500">
+              <h3 className="font-bold text-slate-900 text-sm sm:text-base">Buat Paket Tender Baru</h3>
+              <p className="text-[11px] sm:text-xs text-slate-500">
                 {mode === 'web3' ? "Terbitkan langsung ke Blockchain via Smart Contract" : "Panitia Pemerintah (Contract Owner) menerbitkan lelang"}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+            className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-3.5 sm:space-y-4">
           {errorMsg && (
             <div className="p-3 rounded-lg bg-rose-50 text-rose-800 border border-rose-200 text-xs">
               {errorMsg}
@@ -344,18 +344,18 @@ export function CreateTenderModal({ onClose }) {
             </p>
           </div>
 
-          <div className="border-t border-slate-100 pt-4 flex items-center justify-end gap-2">
+          <div className="border-t border-slate-100 pt-4 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="btn-secondary text-xs"
+              className="btn-secondary text-xs w-full sm:w-auto justify-center"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={isLoading || (mode === 'web3' && !web3Account)}
-              className="btn-primary text-xs flex items-center gap-1.5"
+              className="btn-primary text-xs flex items-center justify-center gap-1.5 w-full sm:w-auto"
             >
               {isLoading ? "Mengirim ke Blockchain..." : "Terbitkan Tender ke Smart Contract"}
             </button>

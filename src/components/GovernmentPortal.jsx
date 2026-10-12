@@ -78,8 +78,8 @@ export function GovernmentPortal({ onOpenCreateModal, onSelectTender }) {
   return (
     <div className="space-y-6">
       {/* Official Government Banner */}
-      <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white rounded-2xl p-6 sm:p-7 shadow-lg border border-slate-800">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white rounded-2xl p-4 sm:p-6 lg:p-7 shadow-lg border border-slate-800">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
               <span className="px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 font-semibold text-[11px] border border-amber-500/30 flex items-center gap-1.5">
@@ -91,7 +91,7 @@ export function GovernmentPortal({ onOpenCreateModal, onSelectTender }) {
               </span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-white">
               Sistem LPSE Terdesentralisasi — TranspaTender ID
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 max-w-3xl leading-relaxed">
@@ -100,11 +100,11 @@ export function GovernmentPortal({ onOpenCreateModal, onSelectTender }) {
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end gap-3 shrink-0">
-            <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-col sm:flex-row lg:flex-col items-stretch sm:items-start lg:items-end gap-2.5 sm:gap-3 shrink-0 w-full lg:w-auto">
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
               <button
                 onClick={onOpenCreateModal}
-                className="px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2"
+                className="flex-1 sm:flex-initial px-4 sm:px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2"
               >
                 <PlusCircle className="w-4 h-4" />
                 <span>Terbitkan Paket Tender Baru</span>
@@ -114,21 +114,21 @@ export function GovernmentPortal({ onOpenCreateModal, onSelectTender }) {
                 <button
                   onClick={() => syncContractData()}
                   disabled={isSyncing}
-                  className="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs rounded-xl shadow-sm transition flex items-center gap-1.5 disabled:opacity-50"
+                  className="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs rounded-xl shadow-sm transition flex items-center justify-center gap-1.5 disabled:opacity-50"
                   title="Perbarui data lelang langsung dari blockchain"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-amber-400' : ''}`} />
-                  <span>{isSyncing ? "Menyinkronkan..." : "Sinkronkan On-Chain"}</span>
+                  <span>{isSyncing ? "Menyinkronkan..." : "Sinkronkan"}</span>
                 </button>
               )}
             </div>
 
             <div className="text-[11px] text-slate-400 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800 flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <span className="truncate">
                 {mode === 'web3' 
-                  ? (isOwner ? "👑 Dompet Anda: Panitia (Contract Owner)" : `Auditor / Guest (${truncateAddress(web3Account)})`) 
-                  : "Akun Aktif: Panitia Pemerintah (Simulasi)"}
+                  ? (isOwner ? "👑 Dompet: Panitia (Owner)" : `Auditor (${truncateAddress(web3Account)})`) 
+                  : "Akun: Panitia Pemerintah (Simulasi)"}
               </span>
             </div>
           </div>
@@ -136,8 +136,8 @@ export function GovernmentPortal({ onOpenCreateModal, onSelectTender }) {
       </div>
 
       {/* Government KPI Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200/80 shadow-sm">
           <div className="text-xs font-medium text-slate-500 flex items-center gap-1.5">
             <Building className="w-4 h-4 text-slate-400" />
             <span>Total Paket Pengadaan</span>
@@ -150,7 +150,7 @@ export function GovernmentPortal({ onOpenCreateModal, onSelectTender }) {
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm">
+        <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200/80 shadow-sm">
           <div className="text-xs font-medium text-slate-500 flex items-center gap-1.5">
             <Lock className="w-4 h-4 text-slate-400" />
             <span>Total Pagu Anggaran APBN/D</span>
@@ -163,7 +163,7 @@ export function GovernmentPortal({ onOpenCreateModal, onSelectTender }) {
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm">
+        <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200/80 shadow-sm">
           <div className="text-xs font-medium text-slate-500 flex items-center gap-1.5">
             <TrendingDown className="w-4 h-4 text-emerald-600" />
             <span>Efisiensi Kas Negara</span>
@@ -176,7 +176,7 @@ export function GovernmentPortal({ onOpenCreateModal, onSelectTender }) {
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm">
+        <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200/80 shadow-sm">
           <div className="text-xs font-medium text-slate-500 flex items-center gap-1.5">
             <Award className="w-4 h-4 text-amber-500" />
             <span>Perlu Tindakan Panitia</span>
@@ -191,41 +191,41 @@ export function GovernmentPortal({ onOpenCreateModal, onSelectTender }) {
       </div>
 
       {/* Government Navigation Tabs */}
-      <div className="flex border-b border-slate-200 gap-2 overflow-x-auto text-xs sm:text-sm font-medium">
+      <div className="flex border-b border-slate-200 gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar text-xs sm:text-sm font-medium pb-0.5">
         <button
           onClick={() => setGovSubTab('tenders')}
-          className={`pb-3 px-4 border-b-2 flex items-center gap-2 transition ${
+          className={`pb-2.5 pt-1 px-3 sm:px-4 border-b-2 flex items-center gap-2 transition whitespace-nowrap shrink-0 ${
             govSubTab === 'tenders' 
               ? 'border-amber-600 text-amber-900 font-bold' 
               : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
           <Building className="w-4 h-4 text-amber-600" />
-          <span>1. Manajemen Paket Lelang & Monitoring Peserta</span>
+          <span>1. Manajemen Paket Lelang</span>
         </button>
 
         <button
           onClick={() => setGovSubTab('audit')}
-          className={`pb-3 px-4 border-b-2 flex items-center gap-2 transition ${
+          className={`pb-2.5 pt-1 px-3 sm:px-4 border-b-2 flex items-center gap-2 transition whitespace-nowrap shrink-0 ${
             govSubTab === 'audit' 
               ? 'border-indigo-600 text-indigo-900 font-bold' 
               : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
           <ShieldCheck className="w-4 h-4 text-indigo-600" />
-          <span>2. Jejak Audit Publik & Laporan KPK/BPK</span>
+          <span>2. Jejak Audit Publik & Laporan</span>
         </button>
 
         <button
           onClick={() => setGovSubTab('contract')}
-          className={`pb-3 px-4 border-b-2 flex items-center gap-2 transition ${
+          className={`pb-2.5 pt-1 px-3 sm:px-4 border-b-2 flex items-center gap-2 transition whitespace-nowrap shrink-0 ${
             govSubTab === 'contract' 
               ? 'border-slate-900 text-slate-900 font-bold' 
               : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
           <FileText className="w-4 h-4 text-slate-700" />
-          <span>3. Arsitektur Smart Contract Base Sepolia</span>
+          <span>3. Arsitektur Smart Contract</span>
         </button>
       </div>
 

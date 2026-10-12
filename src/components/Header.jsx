@@ -80,21 +80,21 @@ export function Header({ activePortal, setActivePortal, onOpenCreateModal }) {
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80">
       {/* Top Banner & Mode Switcher */}
-      <div className="bg-slate-950 text-white text-xs px-4 py-1.5 flex flex-wrap items-center justify-between border-b border-slate-800 gap-2">
-        <div className="flex items-center gap-2">
+      <div className="bg-slate-950 text-white text-xs px-3 sm:px-4 py-1.5 flex flex-wrap items-center justify-between border-b border-slate-800 gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <span className="inline-block w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
-          <span className="font-semibold text-slate-200">
-            {mode === 'web3' ? (SUPPORTED_NETWORKS[web3ChainId]?.chainName || 'Base Sepolia Testnet (Chain ID: 84532)') : 'Simulasi Sandbox E-Procurement'}
+          <span className="font-semibold text-slate-200 text-[11px] sm:text-xs">
+            {mode === 'web3' ? (SUPPORTED_NETWORKS[web3ChainId]?.chainName || 'Base Sepolia (84532)') : 'Simulasi Sandbox E-Procurement'}
           </span>
-          <span className="text-slate-600 hidden sm:inline">•</span>
-          <span className="text-slate-400 hidden sm:inline">Zero Insider Trading Protocol</span>
+          <span className="text-slate-600 hidden md:inline">•</span>
+          <span className="text-slate-400 hidden md:inline">Zero Insider Trading Protocol</span>
         </div>
         
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-1.5 sm:gap-2.5">
           {/* IPFS Node / Pinata Settings Shortcut */}
           <button
             onClick={() => setIsIpfsModalOpen(true)}
-            className={`flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium transition ${
+            className={`flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-[11px] font-medium transition ${
               hasPinata || useLocal
                 ? 'bg-emerald-950 text-emerald-300 border border-emerald-800 hover:bg-emerald-900'
                 : 'bg-slate-900 text-slate-300 border border-slate-700 hover:text-white'
@@ -102,34 +102,36 @@ export function Header({ activePortal, setActivePortal, onOpenCreateModal }) {
             title="Kelola Kunci Akses IPFS Pinata / Node Lokal"
           >
             <Cloud className="w-3 h-3 text-indigo-400" />
-            <span>{hasPinata ? "IPFS: Pinata Aktif" : useLocal ? "IPFS: Node Lokal" : "IPFS Settings"}</span>
+            <span>{hasPinata ? "IPFS: Pinata" : useLocal ? "IPFS: Lokal" : "IPFS"}</span>
           </button>
 
           {/* Mode Switcher Tabs */}
-          <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-0.5 text-[11px]">
+          <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-0.5 text-[10px] sm:text-[11px]">
             <button
               onClick={() => setMode('web3')}
-              className={`px-2.5 py-1 rounded-md transition flex items-center gap-1.5 ${
+              className={`px-2 sm:px-2.5 py-1 rounded-md transition flex items-center gap-1 ${
                 mode === 'web3' 
                   ? 'bg-blue-600 text-white font-semibold shadow-sm' 
                   : 'text-slate-400 hover:text-white'
               }`}
               title="Gunakan Dompet Blockchain Asli (MetaMask)"
             >
-              <Wallet className="w-3.5 h-3.5" />
-              <span>Mode Web3 (Base Sepolia)</span>
+              <Wallet className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="hidden sm:inline">Mode Web3</span>
+              <span className="sm:hidden">Web3</span>
             </button>
 
             <button
               onClick={() => setMode('simulation')}
-              className={`px-2.5 py-1 rounded-md transition flex items-center gap-1.5 ${
+              className={`px-2 sm:px-2.5 py-1 rounded-md transition flex items-center gap-1 ${
                 mode === 'simulation' 
                   ? 'bg-slate-800 text-white font-semibold shadow-sm' 
                   : 'text-slate-400 hover:text-white'
               }`}
               title="Mode Simulasi Cepat (Bebas Gas, Kendali Waktu)"
             >
-              <span>Sandbox Simulasi</span>
+              <span className="hidden sm:inline">Sandbox Simulasi</span>
+              <span className="sm:hidden">Simulasi</span>
             </button>
           </div>
 
@@ -137,7 +139,7 @@ export function Header({ activePortal, setActivePortal, onOpenCreateModal }) {
             href={SUPPORTED_NETWORKS[web3ChainId]?.blockExplorerUrls?.[0] || "https://sepolia.basescan.org/"} 
             target="_blank" 
             rel="noreferrer"
-            className="text-slate-400 hover:text-slate-200 flex items-center gap-1 text-[11px]"
+            className="text-slate-400 hover:text-slate-200 hidden sm:flex items-center gap-1 text-[11px]"
           >
             <span>Basescan</span>
             <ExternalLink className="w-2.5 h-2.5" />
@@ -148,28 +150,28 @@ export function Header({ activePortal, setActivePortal, onOpenCreateModal }) {
       {/* Main Navigation Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-4">
         {/* Brand adapted to Portal */}
-        <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-lg shadow-sm ${
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center font-bold text-lg shadow-sm shrink-0 ${
             isGov 
               ? 'bg-slate-900 text-amber-400 border border-slate-800' 
               : 'bg-blue-900 text-white border border-blue-800'
           }`}>
-            {isGov ? <Building className="w-5 h-5 text-amber-400" /> : <Briefcase className="w-5 h-5 text-blue-300" />}
+            {isGov ? <Building className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" /> : <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 text-blue-300" />}
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="font-extrabold text-slate-900 text-base tracking-tight">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <span className="font-extrabold text-slate-900 text-sm sm:text-base tracking-tight">
                 {isGov ? "LPSE Pemerintah" : "Vendor Hub Rekanan"}
               </span>
-              <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded border ${
+              <span className={`text-[9px] sm:text-[10px] font-bold px-1.5 py-0.2 rounded border ${
                 isGov 
                   ? 'bg-amber-50 text-amber-800 border-amber-200' 
                   : 'bg-blue-50 text-blue-800 border-blue-200'
               }`}>
-                {isGov ? "PANITIA / PPK" : "PENYEDIA RESMI"}
+                {isGov ? "PANITIA / PPK" : "PENYEDIA"}
               </span>
             </div>
-            <p className="text-[11px] text-slate-500">
+            <p className="text-[11px] text-slate-500 hidden sm:block">
               {isGov 
                 ? "Sistem E-Procurement Pemerintah — TranspaTender ID" 
                 : "Portal Partisipasi & Sealed-Bid Rekanan — TranspaTender ID"}
@@ -193,25 +195,25 @@ export function Header({ activePortal, setActivePortal, onOpenCreateModal }) {
         </div>
 
         {/* Right Section: Time Controls & User Wallet */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           {/* Time simulation widget (only for simulation mode) */}
           {mode === 'simulation' ? (
-            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-xs">
-              <Clock className="w-3.5 h-3.5 text-slate-500" />
-              <span className="font-mono font-medium text-slate-800 tabular-nums">
+            <div className="flex items-center gap-1 sm:gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-2 sm:px-2.5 py-1 text-xs">
+              <Clock className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+              <span className="font-mono font-medium text-slate-800 tabular-nums text-[11px] sm:text-xs">
                 {formatSimTime(currentTime)}
               </span>
-              <div className="flex items-center border-l border-slate-200 pl-1.5 gap-1">
+              <div className="flex items-center border-l border-slate-200 pl-1 sm:pl-1.5 gap-0.5 sm:gap-1">
                 <button
                   onClick={() => fastForwardTime(60)}
-                  className="px-1.5 py-0.5 hover:bg-slate-200 rounded text-[10px] font-semibold text-slate-700"
+                  className="px-1 sm:px-1.5 py-0.5 hover:bg-slate-200 rounded text-[10px] font-semibold text-slate-700"
                   title="Maju 1 Menit"
                 >
                   +1m
                 </button>
                 <button
                   onClick={() => fastForwardTime(180)}
-                  className="px-1.5 py-0.5 hover:bg-slate-200 rounded text-[10px] font-semibold text-slate-700"
+                  className="px-1 sm:px-1.5 py-0.5 hover:bg-slate-200 rounded text-[10px] font-semibold text-slate-700"
                   title="Maju 3 Menit (Ganti Fase Commit / Reveal)"
                 >
                   +3m
@@ -241,14 +243,14 @@ export function Header({ activePortal, setActivePortal, onOpenCreateModal }) {
               <div className="relative">
                 <button
                   onClick={() => setIsWalletMenuOpen(!isWalletMenuOpen)}
-                  className="flex items-center gap-2 bg-blue-50/80 border border-blue-200 hover:border-blue-300 rounded-lg px-2.5 py-1.5 text-xs text-left shadow-sm transition"
+                  className="flex items-center gap-1.5 sm:gap-2 bg-blue-50/80 border border-blue-200 hover:border-blue-300 rounded-lg px-2 sm:px-2.5 py-1 sm:py-1.5 text-xs text-left shadow-sm transition"
                 >
-                  <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
                   <div className="leading-tight">
-                    <div className="font-semibold text-slate-900 font-mono">
+                    <div className="font-semibold text-slate-900 font-mono text-[11px] sm:text-xs">
                       {truncateAddress(web3Account)}
                     </div>
-                    <div className="text-[10px] text-blue-700 font-mono">
+                    <div className="text-[10px] text-blue-700 font-mono hidden xs:block">
                       {web3Balance} {currentNetworkConfig.nativeCurrency?.symbol || 'ETH'}
                     </div>
                   </div>
@@ -258,7 +260,7 @@ export function Header({ activePortal, setActivePortal, onOpenCreateModal }) {
                 {isWalletMenuOpen && (
                   <>
                     <div className="fixed inset-0 z-30" onClick={() => setIsWalletMenuOpen(false)}></div>
-                    <div className="absolute right-0 mt-2 w-72 bg-white border border-slate-200 rounded-xl shadow-xl z-40 p-3 text-xs space-y-3">
+                    <div className="absolute right-0 mt-2 w-72 max-w-[calc(100vw-2rem)] bg-white border border-slate-200 rounded-xl shadow-xl z-40 p-3 text-xs space-y-3">
                       <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                         <span className="font-bold text-slate-900">Dompet Terhubung</span>
                         <span className="text-[10px] px-2 py-0.5 rounded font-semibold bg-emerald-100 text-emerald-800">
@@ -321,10 +323,11 @@ export function Header({ activePortal, setActivePortal, onOpenCreateModal }) {
               <button
                 onClick={() => connectMetaMask(84532)}
                 disabled={isWeb3Loading}
-                className="btn-primary text-xs py-1.5 px-3 flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500"
+                className="btn-primary text-xs py-1.5 px-2.5 sm:px-3 flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 shrink-0"
               >
                 <Wallet className="w-3.5 h-3.5" />
-                <span>{isWeb3Loading ? "Menghubungkan..." : "Hubungkan MetaMask"}</span>
+                <span className="hidden sm:inline">{isWeb3Loading ? "Menghubungkan..." : "Hubungkan MetaMask"}</span>
+                <span className="sm:hidden">{isWeb3Loading ? "..." : "MetaMask"}</span>
               </button>
             )
           ) : (
@@ -332,12 +335,12 @@ export function Header({ activePortal, setActivePortal, onOpenCreateModal }) {
             <div className="relative">
               <button
                 onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
-                className="flex items-center gap-2 bg-white border border-slate-200 hover:border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-left shadow-sm transition"
+                className="flex items-center gap-1.5 sm:gap-2 bg-white border border-slate-200 hover:border-slate-300 rounded-lg px-2 sm:px-2.5 py-1 sm:py-1.5 text-xs text-left shadow-sm transition"
               >
-                <div className="w-2 h-2 rounded-full bg-slate-700"></div>
+                <div className="w-2 h-2 rounded-full bg-slate-700 shrink-0"></div>
                 <div className="leading-tight">
-                  <div className="font-medium text-slate-900">{currentAccount.name}</div>
-                  <div className="text-[10px] text-slate-500 font-mono">{truncateAddress(currentAccount.address)}</div>
+                  <div className="font-medium text-slate-900 text-[11px] sm:text-xs truncate max-w-[100px] sm:max-w-none">{currentAccount.name}</div>
+                  <div className="text-[10px] text-slate-500 font-mono hidden sm:block">{truncateAddress(currentAccount.address)}</div>
                 </div>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
               </button>
@@ -345,7 +348,7 @@ export function Header({ activePortal, setActivePortal, onOpenCreateModal }) {
               {isAccountMenuOpen && (
                 <>
                   <div className="fixed inset-0 z-30" onClick={() => setIsAccountMenuOpen(false)}></div>
-                  <div className="absolute right-0 mt-1 w-64 bg-white border border-slate-200 rounded-xl shadow-lg z-40 py-1 text-xs">
+                  <div className="absolute right-0 mt-1 w-64 max-w-[calc(100vw-2rem)] bg-white border border-slate-200 rounded-xl shadow-lg z-40 py-1 text-xs">
                     <div className="px-3 py-1.5 border-b border-slate-100 text-[11px] font-medium text-slate-400 uppercase tracking-wider">
                       Pilih Entitas Simulasi
                     </div>
@@ -378,11 +381,12 @@ export function Header({ activePortal, setActivePortal, onOpenCreateModal }) {
           {isGov && (
             <button
               onClick={onOpenCreateModal}
-              className="btn-primary text-xs py-1.5 px-3 flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white"
+              className="btn-primary text-xs py-1.5 px-2.5 sm:px-3 flex items-center gap-1 bg-amber-600 hover:bg-amber-700 text-white shrink-0"
               title="Panitia Pemerintah menerbitkan proyek lelang baru"
             >
               <PlusCircle className="w-3.5 h-3.5" />
-              <span>Buat Tender</span>
+              <span className="hidden sm:inline">Buat Tender</span>
+              <span className="sm:hidden">Buat</span>
             </button>
           )}
         </div>

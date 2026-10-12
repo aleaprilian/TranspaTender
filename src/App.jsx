@@ -83,7 +83,7 @@ export function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6">
         {/* Web3 Control Bar (Base Sepolia deploy, network status, faucet) */}
         <Web3ControlBar />
 
@@ -119,19 +119,19 @@ export function App() {
       )}
 
       {/* Minimalist Footer */}
-      <footer className="border-t border-slate-200/80 bg-white py-6 text-xs text-slate-500 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
+      <footer className="border-t border-slate-200/80 bg-white py-5 sm:py-6 text-xs text-slate-500 mt-auto">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-2 gap-y-1 text-center sm:text-left">
             <span className="font-semibold text-slate-800">TranspaTender ID</span>
             <span>•</span>
             <span>Sistem E-Procurement Blockchain Terdesentralisasi</span>
-            <span>•</span>
+            <span className="hidden xs:inline">•</span>
             <span className="text-[11px] bg-blue-50 text-blue-700 border border-blue-200 px-1.5 py-0.5 rounded font-medium">
               Base Sepolia (L2)
             </span>
           </div>
 
-          <div className="flex items-center gap-4 text-slate-600">
+          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3 text-slate-600">
             <button 
               onClick={() => setActivePortal(activePortal === 'pemerintah' ? 'vendor' : 'pemerintah')}
               className="hover:text-slate-900 transition flex items-center gap-1 font-medium"

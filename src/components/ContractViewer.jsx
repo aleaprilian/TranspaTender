@@ -288,10 +288,10 @@ export function ContractViewer() {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* Intro Banner */}
-      <div className="mini-card p-6 bg-white border border-slate-200 space-y-4">
+      <div className="mini-card p-4 sm:p-6 bg-white border border-slate-200 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
               Arsitektur & Kode Smart Contract (TranspaTender.sol)
             </h2>
             <p className="text-xs text-slate-500 mt-1">
@@ -299,19 +299,19 @@ export function ContractViewer() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
             <a
               href="https://remix.ethereum.org/"
               target="_blank"
               rel="noreferrer"
-              className="btn-secondary text-xs"
+              className="btn-secondary text-xs justify-center"
             >
               <span>Buka Remix IDE</span>
               <ExternalLink className="w-3 h-3" />
             </a>
             <button
               onClick={handleCopy}
-              className="btn-primary text-xs"
+              className="btn-primary text-xs justify-center"
             >
               {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
               <span>{copied ? "Tersalin!" : "Salin Kode Solidity"}</span>
@@ -320,7 +320,7 @@ export function ContractViewer() {
         </div>
 
         {/* 4 System Layers Diagram */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs pt-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs pt-2">
           <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
             <div className="font-semibold text-slate-800 mb-1">1. Presentation</div>
             <p className="text-[11px] text-slate-500">React + Ethers.js + Web3 Provider</p>

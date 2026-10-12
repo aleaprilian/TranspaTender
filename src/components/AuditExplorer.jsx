@@ -279,17 +279,18 @@ export function AuditExplorer() {
       </div>
 
       {/* Explorer Navigation Tabs (Registry vs Raw Logs) */}
-      <div className="flex border-b border-slate-200 gap-6">
+      <div className="flex border-b border-slate-200 gap-2 sm:gap-6 overflow-x-auto no-scrollbar pb-0.5">
         <button
           onClick={() => setActiveTab('registry')}
-          className={`pb-3 text-xs sm:text-sm font-semibold transition flex items-center gap-2 border-b-2 ${
+          className={`pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 sm:gap-2 border-b-2 whitespace-nowrap shrink-0 ${
             activeTab === 'registry'
               ? 'border-blue-600 text-blue-600'
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
           <Building className="w-4 h-4" />
-          <span>Portal Transparansi Rekanan & Dokumen Publik</span>
+          <span className="hidden sm:inline">Portal Transparansi Rekanan & Dokumen Publik</span>
+          <span className="sm:hidden">Transparansi Rekanan</span>
           <span className="px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold">
             {allBids.length}
           </span>
@@ -297,14 +298,15 @@ export function AuditExplorer() {
 
         <button
           onClick={() => setActiveTab('events')}
-          className={`pb-3 text-xs sm:text-sm font-semibold transition flex items-center gap-2 border-b-2 ${
+          className={`pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 sm:gap-2 border-b-2 whitespace-nowrap shrink-0 ${
             activeTab === 'events'
               ? 'border-blue-600 text-blue-600'
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
           <Activity className="w-4 h-4" />
-          <span>Log Transaksi Blockchain (Raw Events)</span>
+          <span className="hidden sm:inline">Log Transaksi Blockchain (Raw Events)</span>
+          <span className="sm:hidden">Log Blockchain</span>
           <span className="px-1.5 py-0.2 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">
             {auditEvents.length}
           </span>
@@ -324,22 +326,22 @@ export function AuditExplorer() {
               </p>
             </div>
 
-            <div className="flex items-center gap-2 flex-wrap">
-              <div className="relative">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+              <div className="relative w-full sm:w-60">
                 <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
                   placeholder="Cari PT / Wallet / Proyek..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="form-input pl-8 py-1.5 text-xs w-48 sm:w-60"
+                  className="form-input pl-8 py-1.5 text-xs w-full"
                 />
               </div>
 
               <select
                 value={filterTenderId}
                 onChange={(e) => setFilterTenderId(e.target.value)}
-                className="form-input py-1.5 text-xs w-auto"
+                className="form-input py-1.5 text-xs w-full sm:w-auto"
               >
                 <option value="ALL">Semua Paket Tender</option>
                 {tenders.map(t => (
@@ -354,7 +356,7 @@ export function AuditExplorer() {
           {/* TABLE: Modern Public Audit Explorer */}
           <div className="mini-card overflow-hidden bg-white border border-slate-200">
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-xs">
+              <table className="w-full text-left border-collapse text-xs min-w-[700px]">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
                     <th className="py-3 px-4">Paket Lelang</th>

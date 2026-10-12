@@ -115,8 +115,8 @@ export function Web3ControlBar() {
         /* Connected Web3 Dashboard Bar */
         <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm space-y-3">
           {/* Top row: Account & Network Summary */}
-          <div className="flex flex-wrap items-center justify-between gap-3 text-xs border-b border-slate-100 pb-3">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs border-b border-slate-100 pb-3">
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
                 <span className="font-semibold text-slate-800">
@@ -127,7 +127,7 @@ export function Web3ControlBar() {
                 </span>
               </div>
 
-              <div className="h-3 w-px bg-slate-200"></div>
+              <div className="h-3 w-px bg-slate-200 hidden sm:block"></div>
 
               <div className="text-slate-600 flex items-center gap-1.5">
                 <span>Saldo:</span>
@@ -151,42 +151,42 @@ export function Web3ControlBar() {
             </div>
 
             {/* Quick Network Selector */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-slate-400 text-[11px]">Ganti Jaringan:</span>
+            <div className="flex flex-wrap items-center gap-1.5 pt-1 md:pt-0">
+              <span className="text-slate-400 text-[11px]">Ganti:</span>
               <button
                 onClick={() => switchNetwork(84532)}
-                className={`px-2 py-1 rounded text-[11px] font-medium border transition ${web3ChainId === 84532 ? 'bg-blue-50 text-blue-700 border-blue-300 font-semibold' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
+                className={`px-2 py-0.5 sm:py-1 rounded text-[11px] font-medium border transition ${web3ChainId === 84532 ? 'bg-blue-50 text-blue-700 border-blue-300 font-semibold' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
               >
                 Base Sepolia
               </button>
               <button
                 onClick={() => switchNetwork(11155111)}
-                className={`px-2 py-1 rounded text-[11px] font-medium border transition ${web3ChainId === 11155111 ? 'bg-sky-50 text-sky-700 border-sky-300 font-semibold' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
+                className={`px-2 py-0.5 sm:py-1 rounded text-[11px] font-medium border transition ${web3ChainId === 11155111 ? 'bg-sky-50 text-sky-700 border-sky-300 font-semibold' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
               >
                 Eth Sepolia
               </button>
               <button
                 onClick={() => switchNetwork(80002)}
-                className={`px-2 py-1 rounded text-[11px] font-medium border transition ${web3ChainId === 80002 ? 'bg-purple-50 text-purple-700 border-purple-300 font-semibold' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
+                className={`px-2 py-0.5 sm:py-1 rounded text-[11px] font-medium border transition ${web3ChainId === 80002 ? 'bg-purple-50 text-purple-700 border-purple-300 font-semibold' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
               >
-                Polygon Amoy
+                Polygon
               </button>
               <button
                 onClick={() => switchNetwork(31337)}
-                className={`px-2 py-1 rounded text-[11px] font-medium border transition ${web3ChainId === 31337 ? 'bg-emerald-50 text-emerald-700 border-emerald-300 font-semibold' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
+                className={`px-2 py-0.5 sm:py-1 rounded text-[11px] font-medium border transition ${web3ChainId === 31337 ? 'bg-emerald-50 text-emerald-700 border-emerald-300 font-semibold' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
               >
-                Localhost
+                Local
               </button>
             </div>
           </div>
 
           {/* Bottom row: Smart Contract Status */}
           {deployedContractAddress ? (
-            <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 text-xs">
               <div className="flex items-center gap-2 flex-wrap">
                 <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span className="text-slate-500 font-medium">Smart Contract Aktif:</span>
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span className="text-slate-500 font-medium hidden xs:inline">Smart Contract:</span>
                   <span className="font-mono font-bold text-slate-900">
                     {truncateAddress(deployedContractAddress)}
                   </span>
@@ -211,24 +211,24 @@ export function Web3ControlBar() {
                 </div>
 
                 <div className={`px-2 py-0.5 rounded text-[11px] font-semibold border ${isOwner ? 'bg-slate-900 text-white border-slate-900' : 'bg-indigo-50 text-indigo-700 border-indigo-200'}`}>
-                  {isOwner ? "👑 Anda: Panitia Pemerintah (Contract Owner)" : "🏢 Anda: Peserta Vendor"}
+                  {isOwner ? "👑 Panitia (Owner)" : "🏢 Vendor Rekanan"}
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
                 <button
                   onClick={() => syncContractData()}
                   disabled={isSyncing}
-                  className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium text-xs flex items-center gap-1.5 transition disabled:opacity-50"
+                  className="flex-1 sm:flex-initial px-2.5 py-1.5 sm:py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium text-xs flex items-center justify-center gap-1.5 transition disabled:opacity-50"
                   title="Tarik ulang data terkini dari blockchain"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-indigo-600' : ''}`} />
-                  <span>{isSyncing ? "Menyinkronkan..." : "Sinkronkan Blockchain"}</span>
+                  <span>{isSyncing ? "Menyinkronkan..." : "Sinkronkan"}</span>
                 </button>
 
                 <button
                   onClick={() => setShowAttachInput(!showAttachInput)}
-                  className="px-2.5 py-1 border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-lg font-medium text-xs transition"
+                  className="flex-1 sm:flex-initial px-2.5 py-1.5 sm:py-1 border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-lg font-medium text-xs transition text-center justify-center"
                 >
                   Ganti Kontrak
                 </button>
@@ -236,7 +236,7 @@ export function Web3ControlBar() {
                 <button
                   onClick={handleDeploy}
                   disabled={isDeploying}
-                  className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium text-xs flex items-center gap-1 transition shadow-sm disabled:opacity-50"
+                  className="w-full sm:w-auto px-2.5 py-1.5 sm:py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium text-xs flex items-center justify-center gap-1 transition shadow-sm disabled:opacity-50"
                   title="Deploy instance smart contract baru"
                 >
                   <Rocket className="w-3.5 h-3.5" />
@@ -259,22 +259,22 @@ export function Web3ControlBar() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-3 pt-1">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 pt-1">
                 <button
                   onClick={handleDeploy}
                   disabled={isDeploying}
-                  className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-medium text-xs flex items-center gap-1.5 shadow-sm transition disabled:opacity-50"
+                  className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-medium text-xs flex items-center justify-center gap-1.5 shadow-sm transition disabled:opacity-50"
                 >
                   <Rocket className="w-3.5 h-3.5 text-indigo-400" />
-                  <span>{isDeploying ? "Mendeploy ke Blockchain..." : "Deploy Kontrak TranspaTender Baru (1-Klik)"}</span>
+                  <span>{isDeploying ? "Mendeploy ke Blockchain..." : "Deploy Kontrak Baru (1-Klik)"}</span>
                 </button>
 
                 <button
                   onClick={() => setShowAttachInput(!showAttachInput)}
-                  className="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg font-medium text-xs flex items-center gap-1.5 transition"
+                  className="px-3.5 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg font-medium text-xs flex items-center justify-center gap-1.5 transition"
                 >
                   <LinkIcon className="w-3.5 h-3.5 text-slate-500" />
-                  <span>Hubungkan Alamat Kontrak yang Sudah Ada</span>
+                  <span>Hubungkan Alamat Kontrak yang Ada</span>
                 </button>
               </div>
             </div>

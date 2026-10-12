@@ -258,8 +258,8 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
   return (
     <div className="space-y-6">
       {/* Title & Explanatory Box for Vendor Portal */}
-      <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 text-white rounded-2xl p-6 sm:p-7 shadow-lg border border-blue-900/50">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 text-white rounded-2xl p-4 sm:p-6 lg:p-7 shadow-lg border border-blue-900/50">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
               <span className="px-2.5 py-1 rounded bg-blue-500/20 text-blue-300 font-semibold text-[11px] border border-blue-500/30 flex items-center gap-1.5">
@@ -271,7 +271,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
               </span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-white">
               TranspaTender Vendor Hub
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 max-w-3xl leading-relaxed">
@@ -280,7 +280,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
             </p>
           </div>
 
-          <div className="bg-slate-900/90 border border-slate-700 p-4 rounded-xl text-xs space-y-2 shrink-0">
+          <div className="bg-slate-900/90 border border-slate-700 p-3.5 sm:p-4 rounded-xl text-xs space-y-1.5 sm:space-y-2 shrink-0 w-full lg:w-auto">
             <div className="text-slate-400 text-[11px]">Identitas Akun Vendor:</div>
             <div className="font-bold text-white text-sm flex items-center gap-1.5">
               <span>{currentAccount.name}</span>
@@ -294,10 +294,10 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
       </div>
 
       {/* Sub Tabs Navigation */}
-      <div className="flex border-b border-slate-200 gap-2 overflow-x-auto text-xs sm:text-sm font-medium">
+      <div className="flex border-b border-slate-200 gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar text-xs sm:text-sm font-medium pb-0.5">
         <button
           onClick={() => setActiveSubTab('katalog')}
-          className={`pb-3 px-3.5 border-b-2 flex items-center gap-2 transition whitespace-nowrap ${
+          className={`pb-2.5 pt-1 px-3 sm:px-3.5 border-b-2 flex items-center gap-2 transition whitespace-nowrap shrink-0 ${
             activeSubTab === 'katalog' 
               ? 'border-blue-600 text-blue-900 font-bold' 
               : 'border-transparent text-slate-500 hover:text-slate-900'
@@ -311,7 +311,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
           onClick={() => selectedTenderId ? setActiveSubTab('hasher') : null}
           disabled={!selectedTenderId}
           title={!selectedTenderId ? "Pilih salah satu paket pengadaan di Katalog terlebih dahulu agar alur tidak berantakan" : "1. Kalkulator Hash Keccak-256"}
-          className={`pb-3 px-3.5 border-b-2 flex items-center gap-1.5 transition whitespace-nowrap ${
+          className={`pb-2.5 pt-1 px-3 sm:px-3.5 border-b-2 flex items-center gap-1.5 transition whitespace-nowrap shrink-0 ${
             !selectedTenderId 
               ? 'opacity-40 cursor-not-allowed border-transparent text-slate-400'
               : activeSubTab === 'hasher' 
@@ -328,7 +328,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
           onClick={() => selectedTenderId ? setActiveSubTab('commit') : null}
           disabled={!selectedTenderId}
           title={!selectedTenderId ? "Pilih salah satu paket pengadaan di Katalog terlebih dahulu agar alur tidak berantakan" : "2. Kirim Penawaran Terkunci (Fase Commit)"}
-          className={`pb-3 px-3.5 border-b-2 flex items-center gap-1.5 transition whitespace-nowrap ${
+          className={`pb-2.5 pt-1 px-3 sm:px-3.5 border-b-2 flex items-center gap-1.5 transition whitespace-nowrap shrink-0 ${
             !selectedTenderId 
               ? 'opacity-40 cursor-not-allowed border-transparent text-slate-400'
               : activeSubTab === 'commit' 
@@ -345,7 +345,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
           onClick={() => selectedTenderId ? setActiveSubTab('reveal') : null}
           disabled={!selectedTenderId}
           title={!selectedTenderId ? "Pilih salah satu paket pengadaan di Katalog terlebih dahulu agar alur tidak berantakan" : "3. Buka Penawaran (Fase Reveal)"}
-          className={`pb-3 px-3.5 border-b-2 flex items-center gap-1.5 transition whitespace-nowrap ${
+          className={`pb-2.5 pt-1 px-3 sm:px-3.5 border-b-2 flex items-center gap-1.5 transition whitespace-nowrap shrink-0 ${
             !selectedTenderId 
               ? 'opacity-40 cursor-not-allowed border-transparent text-slate-400'
               : activeSubTab === 'reveal' 
@@ -360,7 +360,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
 
         <button
           onClick={() => setActiveSubTab('vault')}
-          className={`pb-3 px-3.5 border-b-2 flex items-center gap-2 transition whitespace-nowrap ${
+          className={`pb-2.5 pt-1 px-3 sm:px-3.5 border-b-2 flex items-center gap-2 transition whitespace-nowrap shrink-0 ${
             activeSubTab === 'vault' 
               ? 'border-emerald-600 text-emerald-900 font-bold' 
               : 'border-transparent text-slate-500 hover:text-slate-900'
@@ -372,7 +372,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
 
         <button
           onClick={() => setActiveSubTab('anticheat')}
-          className={`pb-3 px-3.5 border-b-2 flex items-center gap-2 transition whitespace-nowrap ${
+          className={`pb-2.5 pt-1 px-3 sm:px-3.5 border-b-2 flex items-center gap-2 transition whitespace-nowrap shrink-0 ${
             activeSubTab === 'anticheat' 
               ? 'border-rose-600 text-rose-900 font-bold' 
               : 'border-transparent text-slate-500 hover:text-slate-900'

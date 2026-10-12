@@ -15,7 +15,7 @@ export function TransactionToast() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 max-w-md w-full animate-in slide-in-from-bottom-5 duration-200">
+    <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 sm:max-w-md z-50 animate-in slide-in-from-bottom-5 duration-200">
       <div className={`p-4 rounded-xl shadow-xl border backdrop-blur-md transition-all ${
         txStatus.state === 'pending'
           ? 'bg-slate-900/95 border-indigo-500/50 text-white'
