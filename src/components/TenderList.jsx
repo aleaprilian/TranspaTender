@@ -140,19 +140,19 @@ export function TenderList({ onSelectTender, onOpenVendorModal }) {
           </button>
           <button
             onClick={() => setFilterStage('COMMIT')}
-            className={`px-3 py-1.5 rounded-lg transition whitespace-nowrap shrink-0 ${filterStage === 'COMMIT' ? 'bg-sky-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+            className={`px-3 py-1.5 rounded-lg transition whitespace-nowrap shrink-0 ${filterStage === 'COMMIT' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
           >
             Fase Commit
           </button>
           <button
             onClick={() => setFilterStage('REVEAL')}
-            className={`px-3 py-1.5 rounded-lg transition whitespace-nowrap shrink-0 ${filterStage === 'REVEAL' ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+            className={`px-3 py-1.5 rounded-lg transition whitespace-nowrap shrink-0 ${filterStage === 'REVEAL' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
           >
             Fase Reveal
           </button>
           <button
             onClick={() => setFilterStage('COMPLETED')}
-            className={`px-3 py-1.5 rounded-lg transition whitespace-nowrap shrink-0 ${filterStage === 'COMPLETED' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+            className={`px-3 py-1.5 rounded-lg transition whitespace-nowrap shrink-0 ${filterStage === 'COMPLETED' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
           >
             Selesai
           </button>
@@ -328,7 +328,7 @@ export function TenderList({ onSelectTender, onOpenVendorModal }) {
                   {status.stage === 'COMMIT' && (
                     <button
                       onClick={() => onOpenVendorModal(tender, 'hasher')}
-                      className="btn-primary flex-1 text-xs py-1.5 bg-amber-600 hover:bg-amber-700 justify-center"
+                      className="btn-primary flex-1 text-xs py-1.5 justify-center"
                     >
                       <Lock className="w-3 h-3" />
                       Kirim Penawaran Tersegel
@@ -338,7 +338,7 @@ export function TenderList({ onSelectTender, onOpenVendorModal }) {
                   {status.stage === 'REVEAL' && (
                     <button
                       onClick={() => onOpenVendorModal(tender, 'reveal')}
-                      className="btn-primary flex-1 text-xs py-1.5 bg-amber-600 hover:bg-amber-700 justify-center"
+                      className="btn-primary flex-1 text-xs py-1.5 justify-center"
                     >
                       <KeyRound className="w-3 h-3" />
                       Buka Harga
@@ -354,7 +354,7 @@ export function TenderList({ onSelectTender, onOpenVendorModal }) {
                           alert(err.message);
                         }
                       }}
-                      className="btn-primary flex-1 text-xs py-1.5 bg-indigo-700 hover:bg-indigo-800 justify-center"
+                      className="btn-primary flex-1 text-xs py-1.5 justify-center"
                       title="Panitia Pemerintah mengesahkan pemenang ke Smart Contract"
                     >
                       <CheckCircle2 className="w-3 h-3" />

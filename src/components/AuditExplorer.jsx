@@ -2,24 +2,17 @@ import React, { useState } from 'react';
 import { useTender } from '../context/TenderContext';
 import { 
   truncateAddress, 
-  formatIDR, 
-  generateCommitHash 
+  formatIDR 
 } from '../utils/crypto';
 import { formatIpfsGatewayUrl } from '../utils/ipfsService';
 import { getExplorerTxUrl, SUPPORTED_NETWORKS } from '../contracts/contractAbi';
 import { 
-  ShieldCheck, 
   ExternalLink, 
   Search, 
-  CheckCircle, 
-  AlertCircle, 
   FileText, 
   Copy, 
   Check, 
-  Terminal, 
-  Activity, 
   Layers, 
-  Filter,
   Lock,
   Unlock,
   Building,
@@ -32,36 +25,15 @@ import {
 export function AuditExplorer() {
   const { auditEvents, tenders, deployedContractAddress, web3ChainId, mode } = useTender();
   
-  // Navigation tabs: 'registry' (Tabel Transparansi Rekanan) | 'events' (Raw Log Blockchain)
-  const [activeTab, setActiveTab] = useState('registry');
-
   // Filter & Search
   const [filterTenderId, setFilterTenderId] = useState('ALL');
-  const [filterEvent, setFilterEvent] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [copiedAddr, setCopiedAddr] = useState(null);
-
-  // Independent Auditor Tool (Keccak-256 Verifier)
-  const [verifyHarga, setVerifyHarga] = useState('');
-  const [verifySalt, setVerifySalt] = useState('');
-  const [verifyHashExpected, setVerifyHashExpected] = useState('');
-  const [verifyResult, setVerifyResult] = useState(null);
 
   const handleCopy = (text, key) => {
     navigator.clipboard.writeText(text);
     setCopiedAddr(key);
     setTimeout(() => setCopiedAddr(null), 2000);
-  };
-
-  const handleVerify = (e) => {
-    e.preventDefault();
-    if (!verifyHarga || !verifySalt) return;
-    const computed = generateCommitHash(verifyHarga, verifySalt);
-    const matches = verifyHashExpected ? computed.toLowerCase() === verifyHashExpected.trim().toLowerCase() : null;
-    setVerifyResult({
-      computed,
-      matches
-    });
   };
 
   // Aggregate all vendor bids across tenders for Human-Readable Registry
@@ -113,21 +85,6 @@ export function AuditExplorer() {
     return true;
   });
 
-  // Filtered Events for Raw Log View
-  const filteredEvents = auditEvents.filter(evt => {
-    if (filterEvent !== 'ALL' && evt.eventName !== filterEvent) return false;
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      const matchTx = evt.txHash?.toLowerCase().includes(q);
-      const matchSummary = evt.summary?.toLowerCase().includes(q);
-      const matchEvent = evt.eventName?.toLowerCase().includes(q);
-      const matchVendor = evt.vendor?.toLowerCase().includes(q);
-      const matchCompany = evt.namaPerusahaan?.toLowerCase().includes(q);
-      return matchTx || matchSummary || matchEvent || matchVendor || matchCompany;
-    }
-    return true;
-  });
-
   const activeChainConfig = (mode === 'web3' && web3ChainId && SUPPORTED_NETWORKS[web3ChainId]) 
     ? SUPPORTED_NETWORKS[web3ChainId] 
     : SUPPORTED_NETWORKS[84532];
@@ -175,147 +132,17 @@ export function AuditExplorer() {
           </div>
           <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
             <div className="text-slate-400 text-[11px]">Dokumen Proposal IPFS</div>
-            <div className="text-base font-bold text-emerald-600 mt-0.5">{allBids.filter(b => b.ipfsProposalTeknis).length} Terdesentralisasi</div>
+            <div className="text-base font-bold text-slate-900 mt-0.5">{allBids.filter(b => b.ipfsProposalTeknis).length} Terdesentralisasi</div>
           </div>
           <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
             <div className="text-slate-400 text-[11px]">Integritas Komitmen</div>
-            <div className="text-base font-bold text-indigo-600 mt-0.5">100% Keccak-256 Valid</div>
+            <div className="text-base font-bold text-blue-600 mt-0.5">100% Keccak-256 Valid</div>
           </div>
         </div>
       </div>
 
-      {/* Tool: Verifikator Independen Keccak-256 untuk Auditor */}
-      <div className="mini-card p-6 bg-slate-900 text-white space-y-4 shadow-sm">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-emerald-400" />
-            <h3 className="font-semibold text-sm text-slate-100">
-              Alat Verifikasi Mandiri Auditor (Independent Keccak-256 Verifier)
-            </h3>
-          </div>
-          <span className="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">
-            KPK & BPK Compliance Tool
-          </span>
-        </div>
-        <p className="text-xs text-slate-400">
-          Uji keaslian komitmen vendor secara matematis: Masukkan harga IDR dan kata sandi yang diungkap untuk memverifikasi apakah 
-          hasil hash-nya cocok 100% dengan hash yang dikunci saat pendaftaran awal di blockchain.
-        </p>
-
-        <form onSubmit={handleVerify} className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div>
-            <label className="block text-[11px] text-slate-300 font-medium mb-1">
-              Nominal Harga (IDR)
-            </label>
-            <input
-              type="text"
-              placeholder="Contoh: 920000000"
-              value={verifyHarga}
-              onChange={(e) => setVerifyHarga(e.target.value.replace(/[^0-9]/g, ''))}
-              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-emerald-500"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-[11px] text-slate-300 font-medium mb-1">
-              Kata Sandi Rahasia (*Salt*)
-            </label>
-            <input
-              type="text"
-              placeholder="Contoh: sandiVendorA123"
-              value={verifySalt}
-              onChange={(e) => setVerifySalt(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-emerald-500"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-[11px] text-slate-300 font-medium mb-1">
-              Hash Terkunci di Blockchain (Opsional)
-            </label>
-            <input
-              type="text"
-              placeholder="0x..."
-              value={verifyHashExpected}
-              onChange={(e) => setVerifyHashExpected(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-emerald-500"
-            />
-          </div>
-
-          <div className="sm:col-span-3 flex items-center justify-between pt-1">
-            <button
-              type="submit"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5"
-            >
-              <Terminal className="w-3.5 h-3.5" />
-              <span>Hitung & Buktikan Hash</span>
-            </button>
-
-            {verifyResult && (
-              <div className="text-xs">
-                {verifyResult.matches === true && (
-                  <span className="text-emerald-400 font-semibold flex items-center gap-1">
-                    <CheckCircle className="w-4 h-4" /> BUKTI SAH: Cocok 100% dengan Hash di Blockchain
-                  </span>
-                )}
-                {verifyResult.matches === false && (
-                  <span className="text-rose-400 font-semibold flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" /> BEDA HASH: Terindikasi Upaya Rekayasa / Curang
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-        </form>
-
-        {verifyResult && (
-          <div className="bg-slate-950 p-3 rounded-lg border border-slate-800 text-xs font-mono break-all space-y-1">
-            <div className="text-slate-400 text-[10px]">Hasil Perhitungan Hash (Keccak-256):</div>
-            <div className="text-amber-300">{verifyResult.computed}</div>
-          </div>
-        )}
-      </div>
-
-      {/* Explorer Navigation Tabs (Registry vs Raw Logs) */}
-      <div className="flex border-b border-slate-200 gap-2 sm:gap-6 overflow-x-auto no-scrollbar pb-0.5">
-        <button
-          onClick={() => setActiveTab('registry')}
-          className={`pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 sm:gap-2 border-b-2 whitespace-nowrap shrink-0 ${
-            activeTab === 'registry'
-              ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <Building className="w-4 h-4" />
-          <span className="hidden sm:inline">Portal Transparansi Rekanan & Dokumen Publik</span>
-          <span className="sm:hidden">Transparansi Rekanan</span>
-          <span className="px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold">
-            {allBids.length}
-          </span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('events')}
-          className={`pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 sm:gap-2 border-b-2 whitespace-nowrap shrink-0 ${
-            activeTab === 'events'
-              ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <Activity className="w-4 h-4" />
-          <span className="hidden sm:inline">Log Transaksi Blockchain (Raw Events)</span>
-          <span className="sm:hidden">Log Blockchain</span>
-          <span className="px-1.5 py-0.2 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">
-            {auditEvents.length}
-          </span>
-        </button>
-      </div>
-
-      {/* VIEW 1: PORTAL TRANSPARANSI REKANAN & DOKUMEN PUBLIK (HUMAN-READABLE EXPLORER) */}
-      {activeTab === 'registry' && (
-        <div className="space-y-4">
+      {/* PORTAL TRANSPARANSI REKANAN & DOKUMEN PUBLIK */}
+      <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
@@ -519,164 +346,6 @@ export function AuditExplorer() {
             </div>
           </div>
         </div>
-      )}
-
-      {/* VIEW 2: LOG PERISTIWA SMART CONTRACT (RAW ON-CHAIN EVENTS) */}
-      {activeTab === 'events' && (
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <Activity className="w-4 h-4 text-slate-700" />
-              <h3 className="font-bold text-slate-900 text-sm">
-                Log Peristiwa Kontrak (Smart Contract Events)
-              </h3>
-              <span className="text-xs text-slate-400">({filteredEvents.length} Peristiwa)</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="Cari Tx / Event / PT / Ringkasan..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="form-input pl-8 py-1 text-xs w-48 sm:w-60"
-                />
-              </div>
-
-              <select
-                value={filterEvent}
-                onChange={(e) => setFilterEvent(e.target.value)}
-                className="form-input py-1 text-xs w-auto"
-              >
-                <option value="ALL">Semua Event</option>
-                <option value="TenderDibuat">TenderDibuat</option>
-                <option value="PenawaranTerkunciMasuk">PenawaranTerkunciMasuk</option>
-                <option value="PenawaranDibuka">PenawaranDibuka</option>
-                <option value="PemenangDitetapkan">PemenangDitetapkan</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Events Table / Timeline */}
-          <div className="mini-card overflow-hidden">
-            <div className="divide-y divide-slate-100">
-              {filteredEvents.map((evt) => {
-                const dateStr = new Date(evt.timestamp * 1000).toLocaleString('id-ID', {
-                  dateStyle: 'short',
-                  timeStyle: 'medium'
-                });
-
-                const proposalUrl = evt.ipfsProposalTeknis ? formatIpfsGatewayUrl(evt.ipfsProposalTeknis) : null;
-
-                return (
-                  <div key={evt.id} className="p-4 hover:bg-slate-50 transition space-y-2 text-xs">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          evt.eventName === 'TenderDibuat' ? 'bg-blue-100 text-blue-800' :
-                          evt.eventName === 'PenawaranTerkunciMasuk' ? 'bg-sky-100 text-sky-800' :
-                          evt.eventName === 'PenawaranDibuka' ? 'bg-amber-100 text-amber-800' :
-                          evt.eventName === 'PemenangDitetapkan' ? 'bg-emerald-100 text-emerald-800' :
-                          'bg-slate-100 text-slate-800'
-                        }`}>
-                          {evt.eventName}
-                        </span>
-                        {(() => {
-                          const isOnChain = evt.id?.startsWith('evt-chain-') || evt.id?.startsWith('deploy-');
-                          return isOnChain ? (
-                            <span className="px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-semibold">
-                              ● On-Chain ({activeChainConfig.shortName})
-                            </span>
-                          ) : (
-                            <span className="px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 border border-slate-200 text-[10px] font-medium" title="Data simulasi sandbox lokal">
-                              ○ Sandbox Simulasi
-                            </span>
-                          );
-                        })()}
-                        <span className="font-semibold text-slate-800">{evt.summary}</span>
-                      </div>
-
-                      <div className="text-slate-400 font-mono text-[11px] shrink-0">
-                        {dateStr}
-                      </div>
-                    </div>
-
-                    {/* Metadata Detail Row */}
-                    <div className="flex flex-wrap items-center gap-4 text-[11px] text-slate-500 pt-1 border-t border-slate-100/70">
-                      <div className="flex items-center gap-1">
-                        <span>Tx Hash:</span>
-                        {(() => {
-                          const isOnChain = evt.id?.startsWith('evt-chain-') || evt.id?.startsWith('deploy-');
-                          if (isOnChain) {
-                            return (
-                              <a
-                                href={getExplorerTxUrl(evt.txHash, web3ChainId) || `https://sepolia.basescan.org/tx/${evt.txHash}`}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="font-mono text-blue-600 hover:underline flex items-center gap-0.5 font-medium"
-                                title="Buka transaksi terverifikasi di Basescan"
-                              >
-                                {truncateAddress(evt.txHash)}
-                                <ExternalLink className="w-2.5 h-2.5" />
-                              </a>
-                            );
-                          }
-                          return (
-                            <span 
-                              className="font-mono text-slate-500 flex items-center gap-1 cursor-help"
-                              title="Hash simulasi sandbox lokal"
-                            >
-                              <span>{truncateAddress(evt.txHash)}</span>
-                            </span>
-                          );
-                        })()}
-                      </div>
-
-                      <div className="flex items-center gap-1">
-                        <span>Block:</span>
-                        <span className="font-mono text-slate-700">#{evt.blockNumber}</span>
-                      </div>
-
-                      {evt.namaPerusahaan && (
-                        <div className="flex items-center gap-1">
-                          <span>Perusahaan:</span>
-                          <span className="font-semibold text-slate-800 bg-slate-100 px-1.5 py-0.2 rounded text-[10px]">
-                            {evt.namaPerusahaan}
-                          </span>
-                        </div>
-                      )}
-
-                      {evt.vendor && (
-                        <div className="flex items-center gap-1">
-                          <span>Wallet:</span>
-                          <span className="font-mono text-slate-700">{truncateAddress(evt.vendor)}</span>
-                        </div>
-                      )}
-
-                      {proposalUrl && (
-                        <div className="flex items-center gap-1">
-                          <a
-                            href={proposalUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-blue-600 hover:underline flex items-center gap-0.5 font-medium"
-                          >
-                            <FileText className="w-3 h-3" />
-                            <span>Lihat Proposal PDF</span>
-                            <ExternalLink className="w-2 h-2" />
-                          </a>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

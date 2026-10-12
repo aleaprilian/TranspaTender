@@ -152,10 +152,10 @@ export function Header({ activePortal, setActivePortal, onOpenCreateModal }) {
         <div className="flex items-center gap-2.5 sm:gap-3">
           <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center font-bold text-lg shadow-sm shrink-0 ${
             isGov 
-              ? 'bg-slate-900 text-amber-400 border border-slate-800' 
+              ? 'bg-slate-900 text-white border border-slate-800' 
               : 'bg-blue-900 text-white border border-blue-800'
           }`}>
-            {isGov ? <Building className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" /> : <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 text-blue-300" />}
+            {isGov ? <Building className="w-4 h-4 sm:w-5 sm:h-5 text-white" /> : <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 text-blue-300" />}
           </div>
           <div>
             <div className="flex items-center gap-1.5 sm:gap-2">
@@ -164,7 +164,7 @@ export function Header({ activePortal, setActivePortal, onOpenCreateModal }) {
               </span>
               <span className={`text-[9px] sm:text-[10px] font-bold px-1.5 py-0.2 rounded border ${
                 isGov 
-                  ? 'bg-amber-50 text-amber-800 border-amber-200' 
+                  ? 'bg-slate-100 text-slate-800 border-slate-200' 
                   : 'bg-blue-50 text-blue-800 border-blue-200'
               }`}>
                 {isGov ? "PANITIA / PPK" : "PENYEDIA"}

@@ -20,7 +20,7 @@ export function PortalSwitcherBar({ activePortal, setActivePortal }) {
               onClick={() => setActivePortal('pemerintah')}
               className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-md font-semibold transition text-xs ${
                 activePortal === 'pemerintah'
-                  ? 'bg-amber-600 text-white shadow-sm'
+                  ? 'bg-blue-600 text-white shadow-sm'
                   : 'text-slate-400 hover:text-white'
               }`}
             >

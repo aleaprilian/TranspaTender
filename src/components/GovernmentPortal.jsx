@@ -139,11 +139,11 @@ export function GovernmentPortal({ onOpenCreateModal, onSelectTender }) {
             onClick={() => setGovSubTab('tenders')}
             className={`pb-2 pt-1 px-3 sm:px-4 border-b-2 flex items-center gap-2 transition whitespace-nowrap shrink-0 ${
               govSubTab === 'tenders' 
-                ? 'border-amber-600 text-amber-900 font-bold' 
+                ? 'border-slate-900 text-slate-900 font-bold' 
                 : 'border-transparent text-slate-500 hover:text-slate-900'
             }`}
           >
-            <Building className="w-4 h-4 text-amber-600" />
+            <Building className="w-4 h-4 text-slate-900" />
             <span>1. Manajemen Paket Lelang</span>
           </button>
 
@@ -151,11 +151,11 @@ export function GovernmentPortal({ onOpenCreateModal, onSelectTender }) {
             onClick={() => setGovSubTab('audit')}
             className={`pb-2 pt-1 px-3 sm:px-4 border-b-2 flex items-center gap-2 transition whitespace-nowrap shrink-0 ${
               govSubTab === 'audit' 
-                ? 'border-indigo-600 text-indigo-900 font-bold' 
+                ? 'border-slate-900 text-slate-900 font-bold' 
                 : 'border-transparent text-slate-500 hover:text-slate-900'
             }`}
           >
-            <ShieldCheck className="w-4 h-4 text-indigo-600" />
+            <ShieldCheck className="w-4 h-4 text-slate-900" />
             <span>2. Jejak Audit Publik & Laporan</span>
           </button>
 
@@ -167,7 +167,7 @@ export function GovernmentPortal({ onOpenCreateModal, onSelectTender }) {
                 : 'border-transparent text-slate-500 hover:text-slate-900'
             }`}
           >
-            <FileText className="w-4 h-4 text-slate-700" />
+            <FileText className="w-4 h-4 text-slate-900" />
             <span>3. Arsitektur Smart Contract</span>
           </button>
         </div>
@@ -180,14 +180,14 @@ export function GovernmentPortal({ onOpenCreateModal, onSelectTender }) {
               className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-semibold text-xs rounded-lg shadow-2xs transition flex items-center gap-1.5 disabled:opacity-50"
               title="Perbarui data lelang langsung dari blockchain"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-amber-600' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-blue-600' : ''}`} />
               <span>{isSyncing ? "Menyinkronkan..." : "Sinkronkan"}</span>
             </button>
           )}
 
           <button
             onClick={onOpenCreateModal}
-            className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg shadow-sm transition flex items-center justify-center gap-1.5"
+            className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-lg shadow-sm transition flex items-center justify-center gap-1.5"
           >
             <PlusCircle className="w-4 h-4" />
             <span>Terbitkan Paket Tender</span>
@@ -207,7 +207,7 @@ export function GovernmentPortal({ onOpenCreateModal, onSelectTender }) {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Cari nama lelang, dinas, atau ID..."
-                className="w-full pl-9 pr-4 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="w-full pl-9 pr-4 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900"
               />
             </div>
 
@@ -343,7 +343,7 @@ export function GovernmentPortal({ onOpenCreateModal, onSelectTender }) {
                               alert(e.reason || e.message);
                             }
                           }}
-                          className="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold shadow-sm transition flex items-center gap-1"
+                          className="px-3 py-1 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold shadow-sm transition flex items-center gap-1"
                         >
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           <span>Kunci Pemenang</span>

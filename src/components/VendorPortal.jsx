@@ -262,11 +262,11 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
           onClick={() => setActiveSubTab('katalog')}
           className={`pb-2.5 pt-1 px-3 sm:px-3.5 border-b-2 flex items-center gap-2 transition whitespace-nowrap shrink-0 ${
             activeSubTab === 'katalog' 
-              ? 'border-blue-600 text-blue-900 font-bold' 
+              ? 'border-slate-900 text-slate-900 font-bold' 
               : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
-          <Search className="w-4 h-4 text-blue-600" />
+          <Search className="w-4 h-4 text-slate-900" />
           <span>Katalog Lelang Pengadaan</span>
         </button>
 
@@ -278,11 +278,11 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
             !selectedTenderId 
               ? 'opacity-40 cursor-not-allowed border-transparent text-slate-400'
               : activeSubTab === 'hasher' 
-                ? 'border-amber-500 text-amber-900 font-bold' 
+                ? 'border-slate-900 text-slate-900 font-bold' 
                 : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
-          <Sparkles className="w-4 h-4 text-amber-500" />
+          <Sparkles className="w-4 h-4 text-slate-900" />
           <span>1. Kalkulator Hash Keccak-256</span>
           {!selectedTenderId && <Lock className="w-3.5 h-3.5 text-slate-400 ml-0.5" />}
         </button>
@@ -295,11 +295,11 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
             !selectedTenderId 
               ? 'opacity-40 cursor-not-allowed border-transparent text-slate-400'
               : activeSubTab === 'commit' 
-                ? 'border-sky-600 text-sky-900 font-bold' 
+                ? 'border-slate-900 text-slate-900 font-bold' 
                 : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
-          <Lock className="w-4 h-4 text-sky-600" />
+          <Lock className="w-4 h-4 text-slate-900" />
           <span>2. Kirim Penawaran Terkunci (Fase Commit)</span>
           {!selectedTenderId && <Lock className="w-3.5 h-3.5 text-slate-400 ml-0.5" />}
         </button>
@@ -312,11 +312,11 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
             !selectedTenderId 
               ? 'opacity-40 cursor-not-allowed border-transparent text-slate-400'
               : activeSubTab === 'reveal' 
-                ? 'border-amber-600 text-amber-900 font-bold' 
+                ? 'border-slate-900 text-slate-900 font-bold' 
                 : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
-          <Unlock className="w-4 h-4 text-amber-600" />
+          <Unlock className="w-4 h-4 text-slate-900" />
           <span>3. Buka Penawaran (Fase Reveal)</span>
           {!selectedTenderId && <Lock className="w-3.5 h-3.5 text-slate-400 ml-0.5" />}
         </button>
@@ -325,11 +325,11 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
           onClick={() => setActiveSubTab('vault')}
           className={`pb-2.5 pt-1 px-3 sm:px-3.5 border-b-2 flex items-center gap-2 transition whitespace-nowrap shrink-0 ${
             activeSubTab === 'vault' 
-              ? 'border-emerald-600 text-emerald-900 font-bold' 
+              ? 'border-slate-900 text-slate-900 font-bold' 
               : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
-          <Archive className="w-4 h-4 text-emerald-600" />
+          <Archive className="w-4 h-4 text-slate-900" />
           <span>Brankas Rahasia Lokal ({vaultBids.length})</span>
         </button>
 
@@ -337,11 +337,11 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
           onClick={() => setActiveSubTab('anticheat')}
           className={`pb-2.5 pt-1 px-3 sm:px-3.5 border-b-2 flex items-center gap-2 transition whitespace-nowrap shrink-0 ${
             activeSubTab === 'anticheat' 
-              ? 'border-rose-600 text-rose-900 font-bold' 
+              ? 'border-slate-900 text-slate-900 font-bold' 
               : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
-          <AlertOctagon className="w-4 h-4 text-rose-600" />
+          <AlertOctagon className="w-4 h-4 text-slate-900" />
           <span>Uji Coba Anti-Curang</span>
         </button>
       </div>
@@ -446,7 +446,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
                   <button
                     type="button"
                     onClick={() => syncContractData()}
-                    className="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
+                    className="px-3 py-1 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold shadow-sm transition"
                   >
                     Sinkronkan Ulang
                   </button>
@@ -576,7 +576,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
                       {st.stage === 'COMMIT' && (
                         <button
                           onClick={() => handleSelectTenderForFlow(t, 'hasher')}
-                          className="w-full py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold shadow-sm transition flex items-center justify-center gap-1.5"
+                          className="w-full py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold shadow-sm transition flex items-center justify-center gap-1.5"
                           title="Pilih lelang ini dan mulai proses pengiriman penawaran dari Langkah 1 (Kalkulator Hash)"
                         >
                           <Lock className="w-3.5 h-3.5" />
@@ -587,7 +587,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
                       {st.stage === 'REVEAL' && (
                         <button
                           onClick={() => handleSelectTenderForFlow(t, 'reveal')}
-                          className="w-full py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold shadow-sm transition flex items-center justify-center gap-1.5"
+                          className="w-full py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold shadow-sm transition flex items-center justify-center gap-1.5"
                           title="Pilih lelang ini dan buka harga penawaran di Fase Reveal"
                         >
                           <Unlock className="w-3.5 h-3.5" />
@@ -1126,7 +1126,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
             <button
               type="submit"
               disabled={revealTenderStatus?.stage !== 'REVEAL' || isRevealSubmitting}
-              className="btn-primary text-xs w-full sm:w-auto bg-amber-600 hover:bg-amber-700"
+              className="btn-primary text-xs w-full sm:w-auto"
             >
               <Unlock className="w-3.5 h-3.5" />
               <span>{isRevealSubmitting ? "Memverifikasi di Blockchain..." : "Buka Penawaran (Reveal)"}</span>
@@ -1140,7 +1140,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
         <div className="mini-card p-6 space-y-4">
           <div className="border-b border-slate-100 pb-3">
             <h3 className="font-semibold text-slate-900 text-base flex items-center gap-2">
-              <Archive className="w-4 h-4 text-emerald-600" />
+              <Archive className="w-4 h-4 text-slate-900" />
               <span>Brankas Rahasia Lokal Rekanan (Encrypted Client Vault)</span>
             </h3>
             <p className="text-xs text-slate-500 mt-1">
@@ -1175,7 +1175,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
                       setRevealSalt(b.salt);
                       setActiveSubTab('reveal');
                     }}
-                    className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-medium shrink-0 transition"
+                    className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-medium shrink-0 transition"
                   >
                     Buka di Fase Reveal
                   </button>
