@@ -453,12 +453,12 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
               <button
                 onClick={() => {
                   onClose();
-                  onOpenVendorModal(tender, 'commit');
+                  onOpenVendorModal(tender, 'hasher');
                 }}
-                className="btn-primary text-xs bg-sky-700 hover:bg-sky-800"
+                className="btn-primary text-xs bg-amber-600 hover:bg-amber-700"
               >
                 <Lock className="w-3.5 h-3.5" />
-                <span>Kirim Penawaran Terkunci</span>
+                <span>Kirim Penawaran Tersegel (Hitung Hash Dulu)</span>
               </button>
             )}
 

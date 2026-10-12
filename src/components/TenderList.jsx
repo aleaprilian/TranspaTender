@@ -327,11 +327,11 @@ export function TenderList({ onSelectTender, onOpenVendorModal }) {
 
                   {status.stage === 'COMMIT' && (
                     <button
-                      onClick={() => onOpenVendorModal(tender, 'commit')}
-                      className="btn-primary flex-1 text-xs py-1.5 bg-sky-700 hover:bg-sky-800"
+                      onClick={() => onOpenVendorModal(tender, 'hasher')}
+                      className="btn-primary flex-1 text-xs py-1.5 bg-amber-600 hover:bg-amber-700"
                     >
                       <Lock className="w-3 h-3" />
-                      Kirim Sealed Bid
+                      Kirim Sealed Bid (Hitung Hash)
                     </button>
                   )}
 

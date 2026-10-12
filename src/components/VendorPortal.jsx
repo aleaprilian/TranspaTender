@@ -22,6 +22,7 @@ import {
   Unlock,
   AlertOctagon,
   ArrowRight,
+  ArrowLeft,
   Briefcase,
   Layers,
   Archive,
@@ -514,12 +515,16 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
                         <button
                           onClick={() => {
                             setCommitTenderId(t.id);
-                            setActiveSubTab('commit');
+                            if (t.paguAnggaranIDR && (!hasherHarga || Number(hasherHarga) > t.paguAnggaranIDR)) {
+                              setHasherHarga(String(Math.floor(t.paguAnggaranIDR * 0.9)));
+                            }
+                            setActiveSubTab('hasher');
                           }}
-                          className="w-full py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-semibold shadow-sm transition flex items-center justify-center gap-1.5"
+                          className="w-full py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold shadow-sm transition flex items-center justify-center gap-1.5"
+                          title="Mulai dari Langkah 1: Kalkulator Hash untuk menentukan harga rahasia"
                         >
-                          <Lock className="w-3.5 h-3.5" />
-                          <span>Kirim Penawaran Tersegel</span>
+                          <Sparkles className="w-3.5 h-3.5" />
+                          <span>Kirim Penawaran Tersegel (Hitung Hash Dulu)</span>
                         </button>
                       )}
 
@@ -588,8 +593,15 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
       {activeSubTab === 'hasher' && (
         <div className="mini-card p-6 space-y-6">
           <div className="border-b border-slate-100 pb-4">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-bold uppercase tracking-wider">
+                Langkah 1 dari 2
+              </span>
+              <span className="text-slate-400 text-xs">•</span>
+              <span className="text-xs text-slate-500 font-medium">Penyusunan Harga Rahasia (Off-Chain)</span>
+            </div>
             <h3 className="font-semibold text-slate-900 text-base">
-              Penyusun Penawaran Rahasia (Kalkulator Keccak-256)
+              1. Kalkulator Hash Keccak-256 (Sealed-Bid)
             </h3>
             <p className="text-xs text-slate-500 mt-1">
               Fungsi ini menghitung <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-800">keccak256(abi.encodePacked(HargaIDR, KataSandi))</code> secara lokal pada peramban Anda. 
@@ -597,8 +609,45 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
             </p>
           </div>
 
+          {/* Targeted Tender Info Banner */}
+          {selectedCommitTender && (
+            <div className="p-4 bg-gradient-to-r from-amber-50/90 via-orange-50/50 to-blue-50/80 border border-amber-200/90 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div className="text-[10px] font-bold text-amber-800 uppercase tracking-wider">
+                  Target Paket Pengadaan:
+                </div>
+                <h4 className="font-bold text-slate-900 text-sm mt-0.5">
+                  #{selectedCommitTender.id} - {selectedCommitTender.namaProyek}
+                </h4>
+                <div className="text-xs text-slate-600 mt-1 flex flex-wrap items-center gap-2">
+                  <span>Pagu Anggaran Pemerintah: <strong className="text-slate-900">{formatIDR(selectedCommitTender.paguAnggaranIDR)}</strong></span>
+                  <span>•</span>
+                  <span>Satuan Kerja: <strong>{selectedCommitTender.satuanKerja}</strong></span>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-1.5 self-start sm:self-center">
+                <span className="text-[10px] text-slate-500 font-medium mr-1">Rekomendasi Tawar:</span>
+                <button
+                  type="button"
+                  onClick={() => setHasherHarga(String(Math.floor(selectedCommitTender.paguAnggaranIDR * 0.9)))}
+                  className="px-2 py-1 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded text-[11px] font-semibold transition"
+                >
+                  90% Pagu
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setHasherHarga(String(Math.floor(selectedCommitTender.paguAnggaranIDR * 0.85)))}
+                  className="px-2 py-1 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded text-[11px] font-semibold transition"
+                >
+                  85% Pagu
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="flex items-center gap-2 text-xs">
-            <span className="text-slate-500 font-medium">Preset Rekanan:</span>
+            <span className="text-slate-500 font-medium">Preset Rekanan Uji Coba:</span>
             <button
               onClick={() => loadPreset('vendorA')}
               className="px-2.5 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100 font-medium transition"
@@ -625,9 +674,22 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
                 placeholder="Contoh: 920000000"
                 className="form-input text-sm font-mono"
               />
-              <span className="text-[11px] text-slate-500 mt-1 block">
-                Terbaca: <strong className="text-slate-800">{formatIDR(hasherHarga)}</strong>
-              </span>
+              <div className="flex items-center justify-between text-[11px] mt-1.5">
+                <span className="text-slate-500">
+                  Terbaca: <strong className="text-slate-800">{formatIDR(hasherHarga)}</strong>
+                </span>
+                {selectedCommitTender && hasherHarga && (
+                  Number(hasherHarga) > selectedCommitTender.paguAnggaranIDR ? (
+                    <span className="text-rose-600 font-semibold flex items-center gap-1">
+                      <AlertTriangle className="w-3 h-3" /> Melebihi Pagu!
+                    </span>
+                  ) : (
+                    <span className="text-emerald-600 font-semibold flex items-center gap-1">
+                      <Check className="w-3 h-3" /> Di Bawah Pagu
+                    </span>
+                  )
+                )}
+              </div>
             </div>
 
             <div>
@@ -671,15 +733,25 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
             </p>
           </div>
 
-          <div className="flex justify-end">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100">
             <button
+              type="button"
+              onClick={() => setActiveSubTab('katalog')}
+              className="text-xs text-slate-500 hover:text-slate-800 flex items-center gap-1 font-medium order-2 sm:order-1"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Kembali ke Katalog Lelang</span>
+            </button>
+            <button
+              type="button"
               onClick={() => {
                 setCommitHash(hasherResult);
                 setActiveSubTab('commit');
               }}
-              className="btn-primary text-xs"
+              disabled={!hasherResult}
+              className="btn-primary text-xs flex items-center gap-2 order-1 sm:order-2 w-full sm:w-auto justify-center"
             >
-              <span>Lanjut ke Fase 1: Kirim Penawaran Tersegel</span>
+              <span>Lanjut ke Langkah 2: Kirim Penawaran Terkunci</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -691,8 +763,15 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
         <form onSubmit={handleSubmitCommit} className="mini-card p-6 space-y-6">
           <div className="border-b border-slate-100 pb-4 flex items-start justify-between gap-4">
             <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="px-2 py-0.5 rounded bg-sky-100 text-sky-800 text-[10px] font-bold uppercase tracking-wider">
+                  Langkah 2 dari 2
+                </span>
+                <span className="text-slate-400 text-xs">•</span>
+                <span className="text-xs text-slate-500 font-medium">Transaksi On-Chain</span>
+              </div>
               <h3 className="font-semibold text-slate-900 text-base">
-                Fase 1: Kirim Penawaran Terkunci (Sealed Bid)
+                2. Kirim Penawaran Terkunci (Fase Commit)
               </h3>
               <p className="text-xs text-slate-500 mt-1">
                 Kirimkan hash harga dan tautan dokumen proposal teknis (IPFS) Anda ke Smart Contract Base Sepolia sebelum batas waktu pendaftaran berakhir.
@@ -703,6 +782,34 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
                 {commitTenderStatus.label}
               </span>
             )}
+          </div>
+
+          {/* Step 2 Hash Status Banner */}
+          <div className="bg-sky-50 border border-sky-200/80 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2.5">
+              <span className="w-6 h-6 rounded-full bg-sky-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
+                ✓
+              </span>
+              <div>
+                <strong className="text-slate-900">Hash Penawaran dari Langkah 1:</strong>
+                <div className="text-[11px] text-slate-600 mt-0.5">
+                  {commitHash || hasherResult ? (
+                    <span>
+                      Tersedia: <code className="font-mono bg-sky-100 text-sky-900 px-1 py-0.5 rounded text-[10px]">{(commitHash || hasherResult).slice(0, 18)}...</code> (Nilai riil: {formatIDR(hasherHarga)})
+                    </span>
+                  ) : (
+                    <span className="text-amber-700 font-semibold">⚠️ Anda belum membuat hash di Langkah 1 (Kalkulator Hash).</span>
+                  )}
+                </div>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setActiveSubTab('hasher')}
+              className="text-xs text-sky-700 hover:text-sky-900 font-semibold underline shrink-0 self-start sm:self-auto"
+            >
+              {commitHash || hasherResult ? "← Ubah Harga / Sandi di Langkah 1" : "Hitung di Langkah 1 Sekarang →"}
+            </button>
           </div>
 
           {commitStatus && (

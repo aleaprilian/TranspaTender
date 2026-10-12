@@ -63,7 +63,7 @@ export function App() {
 
   const handleOpenVendorModal = (tender, action) => {
     setVendorPortalTenderId(tender.id);
-    setVendorPortalTab(action); // 'commit' or 'reveal'
+    setVendorPortalTab(action === 'commit' ? 'hasher' : action); // Route to Kalkulator Hash first for commit
     setActivePortal('vendor');
   };
 
