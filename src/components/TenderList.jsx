@@ -331,7 +331,7 @@ export function TenderList({ onSelectTender, onOpenVendorModal }) {
                       className="btn-primary flex-1 text-xs py-1.5 bg-amber-600 hover:bg-amber-700"
                     >
                       <Lock className="w-3 h-3" />
-                      Kirim Sealed Bid (Hitung Hash)
+                      Kirim Penawaran Tersegel
                     </button>
                   )}
 

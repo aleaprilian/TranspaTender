@@ -51,6 +51,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
   } = useTender();
 
   const [activeSubTab, setActiveSubTab] = useState(initialTab); // 'katalog' | 'hasher' | 'commit' | 'reveal' | 'vault' | 'anticheat'
+  const [selectedTenderId, setSelectedTenderId] = useState(initialTenderId || null);
   
   // Hasher Tool State
   const [hasherHarga, setHasherHarga] = useState('920000000');
@@ -61,7 +62,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
   // Commit Form State
   const defaultCompanyName = currentAccount.institution || currentAccount.name || 'PT Rekanan Nusantara';
   const [commitVendorName, setCommitVendorName] = useState(defaultCompanyName);
-  const [commitTenderId, setCommitTenderId] = useState(initialTenderId || (tenders[0]?.id || 1));
+  const [commitTenderId, setCommitTenderId] = useState(initialTenderId || null);
   const [commitHash, setCommitHash] = useState('');
   const [commitIpfs, setCommitIpfs] = useState('');
   const [commitStatus, setCommitStatus] = useState(null);
@@ -77,7 +78,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
   }, [currentAccount]);
 
   // Reveal Form State
-  const [revealTenderId, setRevealTenderId] = useState(initialTenderId || (tenders[0]?.id || 1));
+  const [revealTenderId, setRevealTenderId] = useState(initialTenderId || null);
   const [revealHarga, setRevealHarga] = useState('');
   const [revealSalt, setRevealSalt] = useState('');
   const [revealStatus, setRevealStatus] = useState(null);
@@ -99,6 +100,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
   // When initial tender changes
   useEffect(() => {
     if (initialTenderId) {
+      setSelectedTenderId(initialTenderId);
       setCommitTenderId(initialTenderId);
       setRevealTenderId(initialTenderId);
       if (initialTab) setActiveSubTab(initialTab);
@@ -146,8 +148,13 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
       });
       setCommitStatus({
         type: 'success',
-        message: 'Penawaran Terkunci (Sealed Bid) Berhasil Terkirim ke Smart Contract! Identitas perusahaan, link proposal, dan hash telah tercatat di blockchain.'
+        message: 'Penawaran Terkunci (Sealed Bid) Berhasil Terkirim ke Smart Contract! Mengalihkan otomatis ke Menu 3 (Buka Penawaran / Fase Reveal)...'
       });
+      // Auto navigate ke Menu 3 (Fase Reveal) setelah Fase 2 berhasil
+      setTimeout(() => {
+        setRevealTenderId(commitTenderId);
+        setActiveSubTab('reveal');
+      }, 2000);
     } catch (err) {
       setCommitStatus({
         type: 'error',
@@ -174,8 +181,13 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
       });
       setRevealStatus({
         type: 'success',
-        message: 'Penawaran Berhasil Dibuka! Kriptografi Keccak-256 memvalidasi kecocokan hash 100%. Penawaran Anda tercatat sah on-chain.'
+        message: 'Penawaran Berhasil Dibuka! Kriptografi Keccak-256 memvalidasi kecocokan hash 100%. Mengalihkan otomatis ke Katalog Lelang Pengadaan...'
       });
+      // Auto navigate ke Katalog Lelang Pengadaan setelah Fase 3 berhasil
+      setTimeout(() => {
+        setActiveSubTab('katalog');
+        setSelectedTenderId(null);
+      }, 2500);
     } catch (err) {
       setRevealStatus({
         type: 'error',
@@ -186,14 +198,28 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
     }
   };
 
+  // Current selected tender
+  const selectedTender = selectedTenderId ? tenders.find(t => t.id === Number(selectedTenderId)) : null;
+
   // Current selected commit tender
-  const selectedCommitTender = tenders.find(t => t.id === Number(commitTenderId));
+  const selectedCommitTender = selectedTender || (commitTenderId ? tenders.find(t => t.id === Number(commitTenderId)) : null);
   const commitTenderStatus = selectedCommitTender ? getTenderStatus(selectedCommitTender) : null;
 
   // Current selected reveal tender
-  const selectedRevealTender = tenders.find(t => t.id === Number(revealTenderId));
+  const selectedRevealTender = selectedTender || (revealTenderId ? tenders.find(t => t.id === Number(revealTenderId)) : null);
   const revealTenderStatus = selectedRevealTender ? getTenderStatus(selectedRevealTender) : null;
-  const userExistingBid = selectedRevealTender?.penawaran?.[currentAccount.address];
+  const userExistingBid = selectedRevealTender?.penawaran?.[currentAccount.address?.toLowerCase()] || selectedRevealTender?.penawaran?.[currentAccount.address];
+
+  // Helper function to pick a tender and proceed into flow
+  const handleSelectTenderForFlow = (tender, targetTab = 'hasher') => {
+    setSelectedTenderId(tender.id);
+    setCommitTenderId(tender.id);
+    setRevealTenderId(tender.id);
+    if (tender.paguAnggaranIDR && (!hasherHarga || Number(hasherHarga) > tender.paguAnggaranIDR)) {
+      setHasherHarga(String(Math.floor(tender.paguAnggaranIDR * 0.9)));
+    }
+    setActiveSubTab(targetTab);
+  };
 
   // Load all local saved bids for Vault
   const loadVaultBids = () => {
@@ -271,7 +297,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
       <div className="flex border-b border-slate-200 gap-2 overflow-x-auto text-xs sm:text-sm font-medium">
         <button
           onClick={() => setActiveSubTab('katalog')}
-          className={`pb-3 px-3.5 border-b-2 flex items-center gap-2 transition ${
+          className={`pb-3 px-3.5 border-b-2 flex items-center gap-2 transition whitespace-nowrap ${
             activeSubTab === 'katalog' 
               ? 'border-blue-600 text-blue-900 font-bold' 
               : 'border-transparent text-slate-500 hover:text-slate-900'
@@ -282,44 +308,59 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
         </button>
 
         <button
-          onClick={() => setActiveSubTab('hasher')}
-          className={`pb-3 px-3.5 border-b-2 flex items-center gap-2 transition ${
-            activeSubTab === 'hasher' 
-              ? 'border-amber-500 text-amber-900 font-bold' 
-              : 'border-transparent text-slate-500 hover:text-slate-900'
+          onClick={() => selectedTenderId ? setActiveSubTab('hasher') : null}
+          disabled={!selectedTenderId}
+          title={!selectedTenderId ? "Pilih salah satu paket pengadaan di Katalog terlebih dahulu agar alur tidak berantakan" : "1. Kalkulator Hash Keccak-256"}
+          className={`pb-3 px-3.5 border-b-2 flex items-center gap-1.5 transition whitespace-nowrap ${
+            !selectedTenderId 
+              ? 'opacity-40 cursor-not-allowed border-transparent text-slate-400'
+              : activeSubTab === 'hasher' 
+                ? 'border-amber-500 text-amber-900 font-bold' 
+                : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
           <Sparkles className="w-4 h-4 text-amber-500" />
           <span>1. Kalkulator Hash Keccak-256</span>
+          {!selectedTenderId && <Lock className="w-3.5 h-3.5 text-slate-400 ml-0.5" />}
         </button>
 
         <button
-          onClick={() => setActiveSubTab('commit')}
-          className={`pb-3 px-3.5 border-b-2 flex items-center gap-2 transition ${
-            activeSubTab === 'commit' 
-              ? 'border-sky-600 text-sky-900 font-bold' 
-              : 'border-transparent text-slate-500 hover:text-slate-900'
+          onClick={() => selectedTenderId ? setActiveSubTab('commit') : null}
+          disabled={!selectedTenderId}
+          title={!selectedTenderId ? "Pilih salah satu paket pengadaan di Katalog terlebih dahulu agar alur tidak berantakan" : "2. Kirim Penawaran Terkunci (Fase Commit)"}
+          className={`pb-3 px-3.5 border-b-2 flex items-center gap-1.5 transition whitespace-nowrap ${
+            !selectedTenderId 
+              ? 'opacity-40 cursor-not-allowed border-transparent text-slate-400'
+              : activeSubTab === 'commit' 
+                ? 'border-sky-600 text-sky-900 font-bold' 
+                : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
           <Lock className="w-4 h-4 text-sky-600" />
           <span>2. Kirim Penawaran Terkunci (Fase Commit)</span>
+          {!selectedTenderId && <Lock className="w-3.5 h-3.5 text-slate-400 ml-0.5" />}
         </button>
 
         <button
-          onClick={() => setActiveSubTab('reveal')}
-          className={`pb-3 px-3.5 border-b-2 flex items-center gap-2 transition ${
-            activeSubTab === 'reveal' 
-              ? 'border-amber-600 text-amber-900 font-bold' 
-              : 'border-transparent text-slate-500 hover:text-slate-900'
+          onClick={() => selectedTenderId ? setActiveSubTab('reveal') : null}
+          disabled={!selectedTenderId}
+          title={!selectedTenderId ? "Pilih salah satu paket pengadaan di Katalog terlebih dahulu agar alur tidak berantakan" : "3. Buka Penawaran (Fase Reveal)"}
+          className={`pb-3 px-3.5 border-b-2 flex items-center gap-1.5 transition whitespace-nowrap ${
+            !selectedTenderId 
+              ? 'opacity-40 cursor-not-allowed border-transparent text-slate-400'
+              : activeSubTab === 'reveal' 
+                ? 'border-amber-600 text-amber-900 font-bold' 
+                : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
           <Unlock className="w-4 h-4 text-amber-600" />
           <span>3. Buka Penawaran (Fase Reveal)</span>
+          {!selectedTenderId && <Lock className="w-3.5 h-3.5 text-slate-400 ml-0.5" />}
         </button>
 
         <button
           onClick={() => setActiveSubTab('vault')}
-          className={`pb-3 px-3.5 border-b-2 flex items-center gap-2 transition ${
+          className={`pb-3 px-3.5 border-b-2 flex items-center gap-2 transition whitespace-nowrap ${
             activeSubTab === 'vault' 
               ? 'border-emerald-600 text-emerald-900 font-bold' 
               : 'border-transparent text-slate-500 hover:text-slate-900'
@@ -331,7 +372,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
 
         <button
           onClick={() => setActiveSubTab('anticheat')}
-          className={`pb-3 px-3.5 border-b-2 flex items-center gap-2 transition ${
+          className={`pb-3 px-3.5 border-b-2 flex items-center gap-2 transition whitespace-nowrap ${
             activeSubTab === 'anticheat' 
               ? 'border-rose-600 text-rose-900 font-bold' 
               : 'border-transparent text-slate-500 hover:text-slate-900'
@@ -341,6 +382,64 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
           <span>Uji Coba Anti-Curang</span>
         </button>
       </div>
+
+      {/* Selected Tender Context Banner */}
+      {selectedTender && (
+        <div className="bg-gradient-to-r from-blue-50 via-indigo-50/40 to-slate-50 border border-blue-200/90 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs">
+          <div className="flex items-center gap-2.5">
+            <span className="w-7 h-7 rounded-lg bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
+              #{selectedTender.id}
+            </span>
+            <div>
+              <div className="text-[10px] font-bold text-blue-800 uppercase tracking-wider flex items-center gap-1.5">
+                <span>Paket Pengadaan Terpilih:</span>
+              </div>
+              <div className="font-bold text-slate-900 text-sm mt-0.5">
+                {selectedTender.namaProyek}
+              </div>
+              <div className="text-[11px] text-slate-500 mt-0.5 flex flex-wrap items-center gap-2">
+                <span>Satuan Kerja: <strong className="text-slate-700">{selectedTender.satuanKerja}</strong></span>
+                <span>•</span>
+                <span>Pagu Anggaran: <strong className="text-slate-800">{formatIDR(selectedTender.paguAnggaranIDR)}</strong></span>
+              </div>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setActiveSubTab('katalog')}
+            className="px-3 py-1.5 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-medium rounded-lg text-xs shadow-xs transition self-start sm:self-center shrink-0 flex items-center gap-1.5"
+            title="Kembali ke katalog untuk memilih paket pengadaan lain"
+          >
+            <Search className="w-3.5 h-3.5 text-slate-500" />
+            <span>Pilih Pengadaan Lain di Katalog</span>
+          </button>
+        </div>
+      )}
+
+      {/* Guard jika user belum memilih paket tender tapi berada di menu alur 1, 2, atau 3 */}
+      {!selectedTenderId && (activeSubTab === 'hasher' || activeSubTab === 'commit' || activeSubTab === 'reveal') && (
+        <div className="bg-white rounded-2xl border border-slate-200 p-8 sm:p-12 text-center space-y-4 shadow-sm">
+          <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
+            <Lock className="w-7 h-7 text-amber-500" />
+          </div>
+          <div className="max-w-md mx-auto space-y-1.5">
+            <h3 className="font-bold text-slate-900 text-base">Pilih Paket Pengadaan Terlebih Dahulu</h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Menu 1. Kalkulator Hash, 2. Kirim Penawaran Terkunci, dan 3. Buka Penawaran memerlukan paket lelang yang dipilih dari katalog agar proses kriptografi Keccak-256 dan pencatatan smart contract terarah.
+            </p>
+          </div>
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={() => setActiveSubTab('katalog')}
+              className="btn-primary text-xs bg-blue-600 hover:bg-blue-700 inline-flex items-center gap-1.5"
+            >
+              <Search className="w-3.5 h-3.5" />
+              <span>Buka Katalog Lelang Pengadaan</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* TAB 0: KATALOG LELANG UNTUK VENDOR */}
       {activeSubTab === 'katalog' && (
@@ -513,28 +612,20 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
                     <div className="flex items-center justify-between gap-2">
                       {st.stage === 'COMMIT' && (
                         <button
-                          onClick={() => {
-                            setCommitTenderId(t.id);
-                            if (t.paguAnggaranIDR && (!hasherHarga || Number(hasherHarga) > t.paguAnggaranIDR)) {
-                              setHasherHarga(String(Math.floor(t.paguAnggaranIDR * 0.9)));
-                            }
-                            setActiveSubTab('hasher');
-                          }}
+                          onClick={() => handleSelectTenderForFlow(t, 'hasher')}
                           className="w-full py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold shadow-sm transition flex items-center justify-center gap-1.5"
-                          title="Mulai dari Langkah 1: Kalkulator Hash untuk menentukan harga rahasia"
+                          title="Pilih lelang ini dan mulai proses pengiriman penawaran dari Langkah 1 (Kalkulator Hash)"
                         >
-                          <Sparkles className="w-3.5 h-3.5" />
-                          <span>Kirim Penawaran Tersegel (Hitung Hash Dulu)</span>
+                          <Lock className="w-3.5 h-3.5" />
+                          <span>Kirim Penawaran Tersegel</span>
                         </button>
                       )}
 
                       {st.stage === 'REVEAL' && (
                         <button
-                          onClick={() => {
-                            setRevealTenderId(t.id);
-                            setActiveSubTab('reveal');
-                          }}
+                          onClick={() => handleSelectTenderForFlow(t, 'reveal')}
                           className="w-full py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold shadow-sm transition flex items-center justify-center gap-1.5"
+                          title="Pilih lelang ini dan buka harga penawaran di Fase Reveal"
                         >
                           <Unlock className="w-3.5 h-3.5" />
                           <span>Buka Penawaran (Reveal)</span>
@@ -590,7 +681,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
     )}
 
       {/* TAB 1: HASHER CALCULATOR */}
-      {activeSubTab === 'hasher' && (
+      {selectedTenderId && activeSubTab === 'hasher' && (
         <div className="mini-card p-6 space-y-6">
           <div className="border-b border-slate-100 pb-4">
             <div className="flex items-center gap-2 mb-1">
@@ -759,7 +850,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
       )}
 
       {/* TAB 2: FASE 1 COMMIT */}
-      {activeSubTab === 'commit' && (
+      {selectedTenderId && activeSubTab === 'commit' && (
         <form onSubmit={handleSubmitCommit} className="mini-card p-6 space-y-6">
           <div className="border-b border-slate-100 pb-4 flex items-start justify-between gap-4">
             <div>
@@ -825,8 +916,12 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
                 Pilih Paket Tender
               </label>
               <select
-                value={commitTenderId}
-                onChange={(e) => setCommitTenderId(Number(e.target.value))}
+                value={commitTenderId || ''}
+                onChange={(e) => {
+                  const id = Number(e.target.value);
+                  setCommitTenderId(id);
+                  setSelectedTenderId(id);
+                }}
                 className="form-input text-xs sm:text-sm"
               >
                 {tenders.map(t => {
@@ -922,7 +1017,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
       )}
 
       {/* TAB 3: FASE 2 REVEAL */}
-      {activeSubTab === 'reveal' && (
+      {selectedTenderId && activeSubTab === 'reveal' && (
         <form onSubmit={handleSubmitReveal} className="mini-card p-6 space-y-6">
           <div className="border-b border-slate-100 pb-4 flex items-start justify-between gap-4">
             <div>
@@ -952,8 +1047,12 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
               Pilih Paket Tender
             </label>
             <select
-              value={revealTenderId}
-              onChange={(e) => setRevealTenderId(Number(e.target.value))}
+              value={revealTenderId || ''}
+              onChange={(e) => {
+                const id = Number(e.target.value);
+                setRevealTenderId(id);
+                setSelectedTenderId(id);
+              }}
               className="form-input text-xs sm:text-sm"
             >
               {tenders.map(t => {
@@ -1107,6 +1206,7 @@ export function VendorPortal({ initialTenderId, initialTab = 'katalog', onSelect
 
                   <button
                     onClick={() => {
+                      setSelectedTenderId(b.tenderId);
                       setRevealTenderId(b.tenderId);
                       setRevealHarga(String(b.harga));
                       setRevealSalt(b.salt);

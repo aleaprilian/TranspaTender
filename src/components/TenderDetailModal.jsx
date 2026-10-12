@@ -461,7 +461,7 @@ export function TenderDetailModal({ tender, onClose, onOpenVendorModal }) {
                 className="btn-primary text-xs bg-amber-600 hover:bg-amber-700"
               >
                 <Lock className="w-3.5 h-3.5" />
-                <span>Kirim Penawaran Tersegel (Hitung Hash Dulu)</span>
+                <span>Kirim Penawaran Tersegel</span>
               </button>
             )}
 
